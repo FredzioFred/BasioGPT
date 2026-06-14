@@ -762,7 +762,7 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      padding: clamp(16px, 3vw, 32px);
+      padding: 0;
       background: rgba(0, 0, 0, 0.88);
       animation: complaintFade 0.4s ease forwards;
     }
@@ -773,12 +773,12 @@
 
     .complaint-stage {
       position: relative;
-      width: min(100%, 1120px);
-      height: min(100%, 720px);
-      max-height: 88vh;
-      min-height: min(420px, 100%);
+      width: 100vw;
+      height: 100vh;
+      max-height: 100vh;
+      min-height: 100vh;
       overflow: hidden;
-      border-radius: 16px;
+      border-radius: 0;
     }
 
     .complaint-overlay.open .complaint-image {
@@ -985,8 +985,8 @@
       }
 
       .complaint-stage {
-        height: min(78vh, 560px);
-        min-height: 360px;
+        height: 100vh;
+        min-height: 100vh;
       }
 
       .complaint-close {
@@ -1183,7 +1183,7 @@
       <div class="complaint-layer"></div>
       <button class="complaint-close" id="closeComplaintButton" type="button" data-i18n="close">Zamknij</button>
       <div class="complaint-content">
-        <h2 class="complaint-title" id="complaintTitle">BASIO NIGDY SIĘ NIE MYLI</h2>
+        <h2 class="complaint-title" id="complaintTitle">BASIO NIE JEST GŁUPI</h2>
         <p class="complaint-subtitle" id="complaintSubtitle">Twoja reklamacja została rozpatrzona negatywnie.</p>
         <p class="complaint-copy" id="complaintBody">Basio zapoznał się z Twoją sprawą i podtrzymuje swoją odpowiedź.</p>
       </div>
@@ -1244,7 +1244,7 @@
         complaint: "Złóż reklamację",
         copy: "Kopiuj",
         copied: "Skopiowano",
-        complaint_title: "BASIO NIGDY SIĘ NIE MYLI",
+        complaint_title: "BASIO NIE JEST GŁUPI",
         complaint_subtitle: "Twoja reklamacja została rozpatrzona negatywnie.",
         complaint_body: "Basio zapoznał się z Twoją sprawą i podtrzymuje swoją odpowiedź.",
         legal_title: "Informacje prawne",
@@ -1299,7 +1299,7 @@
         complaint: "File complaint",
         copy: "Copy",
         copied: "Copied",
-        complaint_title: "BASIO IS NEVER WRONG",
+        complaint_title: "BASIO IS NOT STUPID",
         complaint_subtitle: "Your complaint has been rejected.",
         complaint_body: "Basio has reviewed your case and stands by his answer.",
         legal_title: "Legal",
@@ -1778,7 +1778,28 @@
       autoResizeInput();
       renderApp();
 
+      const shouldOpenComplaint = shouldTriggerComplaintJumpscare(content);
+      if (shouldOpenComplaint) {
+        openComplaintOverlay();
+      }
+
       await typeBasioReply(activeChat);
+    }
+
+    function shouldTriggerComplaintJumpscare(content) {
+      const normalized = content
+        .toLocaleLowerCase("pl-PL")
+        .replace(/ł/g, "l")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
+
+      if (!normalized) {
+        return false;
+      }
+
+      return normalized.split(/\s+/).includes("glupi");
     }
 
     async function typeBasioReply(chat) {
@@ -2225,9 +2246,12 @@
       }
 
       window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./service-worker.js").catch(() => {
-          // Fail silently when service workers are unavailable.
-        });
+        navigator.serviceWorker
+          .register("./service-worker.js")
+          .then((registration) => registration.update())
+          .catch(() => {
+            // Fail silently when service workers are unavailable.
+          });
       });
     }
   </script>
