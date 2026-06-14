@@ -175,8 +175,12 @@
       animation: avatarBouncing 0.2s ease;
     }
 
+    .message-avatar.avatar-shaking {
+      animation: avatarShake 0.3s ease;
+    }
+
     .message-avatar .avatar-visual.avatar-thinking {
-      animation: avatarThinking 0.6s ease-in-out;
+      animation: avatarThinking var(--avatar-thinking-duration, 0.6s) ease-in-out;
     }
 
     .primary-button,
@@ -308,6 +312,48 @@
       border-top: 1px solid var(--border);
     }
 
+    .sidebar-stats {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid rgba(155, 155, 172, 0.1);
+    }
+
+    .sidebar-stats-title {
+      margin: 0 0 0.75rem;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .sidebar-stats-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+    }
+
+    .sidebar-stats-row + .sidebar-stats-row {
+      margin-top: 0.55rem;
+    }
+
+    .sidebar-stats-label {
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .sidebar-stats-value {
+      color: var(--text);
+      text-align: right;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .sidebar-tools {
       display: grid;
       gap: 10px;
@@ -398,10 +444,86 @@
       color: var(--text);
     }
 
+    .message-body.thinking-dots {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      min-height: 1.2em;
+    }
+
+    .message-body.thinking-dots span {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.35;
+      animation: thinkingDotPulse 1s ease-in-out infinite;
+    }
+
+    .message-body.thinking-dots span:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    .message-body.thinking-dots span:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
     .message-meta {
       margin-top: 8px;
       color: var(--muted);
       font-size: 0.78rem;
+    }
+
+    .message-mode {
+      margin-top: 6px;
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: lowercase;
+      letter-spacing: 0.02em;
+    }
+
+    .message-format-badge {
+      display: inline-block;
+      margin-bottom: 6px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(155, 155, 172, 0.1);
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+    .message-list {
+      margin: 0;
+      padding-left: 18px;
+      line-height: 1.8;
+      font-size: inherit;
+      color: inherit;
+    }
+
+    .message-list li {
+      color: inherit;
+      line-height: 1.8;
+      font-size: inherit;
+    }
+
+    .message-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: inherit;
+      color: inherit;
+    }
+
+    .message-table th,
+    .message-table td {
+      padding: 8px 10px;
+      border: 1px solid rgba(155, 155, 172, 0.15);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .message-table th {
+      font-weight: 500;
     }
 
     .message-actions {
@@ -417,6 +539,22 @@
     .message-row.basio:hover .message-actions {
       opacity: 1;
       pointer-events: auto;
+    }
+
+    .message-row.basio .message-bubble.mode-normalny {
+      background: #222229;
+    }
+
+    .message-row.basio .message-bubble.mode-ekspert {
+      background: #1e2535;
+    }
+
+    .message-row.basio .message-bubble.mode-gleboki {
+      background: #1f1f2e;
+    }
+
+    .message-row.basio .message-bubble.mode-powazny {
+      background: #1e1e1e;
     }
 
     .message-action {
@@ -438,6 +576,77 @@
     .composer {
       padding: 18px 24px 24px;
       border-top: 1px solid var(--border);
+    }
+
+    .composer-toolbar {
+      display: flex;
+      align-items: flex-end;
+      margin-bottom: 10px;
+    }
+
+    .mode-picker {
+      position: relative;
+    }
+
+    .mode-picker-button,
+    .mode-option {
+      border: 1px solid rgba(155, 155, 172, 0.2);
+      border-radius: 8px;
+      background: #222229;
+      color: #9b9bac;
+      font-size: 13px;
+    }
+
+    .mode-picker-button {
+      min-height: 38px;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mode-picker-button:hover,
+    .mode-picker.open .mode-picker-button,
+    .mode-option:hover,
+    .mode-option.active {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    .mode-picker-label {
+      white-space: nowrap;
+    }
+
+    .mode-picker-caret {
+      font-size: 11px;
+    }
+
+    .mode-picker-menu {
+      position: absolute;
+      left: 0;
+      bottom: calc(100% + 8px);
+      min-width: 220px;
+      padding: 6px;
+      border: 1px solid rgba(155, 155, 172, 0.2);
+      border-radius: 12px;
+      background: #222229;
+      display: none;
+      z-index: 50;
+    }
+
+    .mode-picker.open .mode-picker-menu {
+      display: grid;
+      gap: 6px;
+    }
+
+    .mode-option {
+      width: 100%;
+      min-height: 38px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      text-align: left;
     }
 
     .composer-form {
@@ -577,6 +786,46 @@
 
     .wizard-step p:last-child {
       margin-bottom: 0;
+    }
+
+    .wizard-feature-block {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .wizard-feature-title {
+      margin: 0 0 12px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .wizard-feature-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .wizard-feature-item {
+      position: relative;
+      padding-left: 18px;
+      color: #cfcfda;
+      line-height: 1.6;
+    }
+
+    .wizard-feature-item::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--accent);
     }
 
     .wizard-faq-item {
@@ -934,6 +1183,37 @@
       }
     }
 
+    @keyframes avatarShake {
+      0% {
+        transform: translateX(0);
+      }
+      25% {
+        transform: translateX(-2px);
+      }
+      50% {
+        transform: translateX(2px);
+      }
+      75% {
+        transform: translateX(-1px);
+      }
+      100% {
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes thinkingDotPulse {
+      0%,
+      80%,
+      100% {
+        opacity: 0.3;
+        transform: translateY(0);
+      }
+      40% {
+        opacity: 1;
+        transform: translateY(-2px);
+      }
+    }
+
     @keyframes avatarBouncing {
       0% {
         transform: translateY(0);
@@ -984,6 +1264,19 @@
         max-width: 100%;
       }
 
+      .composer-toolbar,
+      .composer-form {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .mode-picker,
+      .mode-picker-button,
+      .mode-picker-menu,
+      .composer-button {
+        width: 100%;
+      }
+
       .complaint-stage {
         height: 100vh;
         min-height: 100vh;
@@ -1028,6 +1321,8 @@
 
       <div class="sidebar-list" id="chatList" aria-label="Lista rozmów"></div>
 
+      <section class="sidebar-stats" id="statsPanel" aria-label="Statystyki"></section>
+
       <div class="sidebar-bottom">
         <div class="sidebar-tools">
           <button class="settings-icon-button" id="settingsButton" type="button">
@@ -1047,6 +1342,21 @@
       <section class="chat-history" id="chatHistory" aria-live="polite"></section>
 
       <footer class="composer">
+        <div class="composer-toolbar">
+          <div class="mode-picker" id="modePicker">
+            <button class="mode-picker-button" id="modePickerButton" type="button" aria-haspopup="listbox" aria-expanded="false">
+              <span aria-hidden="true">🐶</span>
+              <span class="mode-picker-label" id="modePickerLabel">Normalny</span>
+              <span class="mode-picker-caret" aria-hidden="true">▾</span>
+            </button>
+            <div class="mode-picker-menu" id="modePickerMenu" role="listbox" aria-label="Tryb osobowości Basia">
+              <button class="mode-option" type="button" data-mode-option="normalny"></button>
+              <button class="mode-option" type="button" data-mode-option="ekspert"></button>
+              <button class="mode-option" type="button" data-mode-option="gleboki"></button>
+              <button class="mode-option" type="button" data-mode-option="powazny"></button>
+            </div>
+          </div>
+        </div>
         <form class="composer-form" id="chatForm">
           <textarea
             class="composer-input"
@@ -1076,6 +1386,10 @@
         <p id="wizardAboutP1">BasioGPT nie jest sztuczną inteligencją. Jest czymś znacznie lepszym: Basiem — prawdziwym sznaucerem średnim, który osobiście odpowiada na każde pytanie.</p>
         <p id="wizardAboutP2">Basio nigdy się nie myli. Jego inteligencja została niezależnie porównana do inteligencji delfinów — jednych z najbardziej zaawansowanych poznawczo stworzeń na Ziemi.</p>
         <p id="wizardAboutP3">Basio jest ponadto wyjątkowo przystojny i nieustannie głodny, co — jak potwierdzają eksperci — stanowi optymalne połączenie cech dla modelu językowego nowej generacji.</p>
+        <div class="wizard-feature-block">
+          <h5 class="wizard-feature-title" id="wizardFeaturesTitle">NOWOŚCI</h5>
+          <ul class="wizard-feature-list" id="wizardFeaturesList"></ul>
+        </div>
       </section>
 
       <section class="wizard-step" data-step="1">
@@ -1224,6 +1538,56 @@
     const SOUND_KEY = "basiogpt_sound";
     const ANIMATIONS_KEY = "basiogpt_animations";
     const LANG_KEY = "basiogpt_lang";
+    const MODE_KEY = "basiogpt_mode";
+    const STATS_KEY = "basiogpt_stats";
+    const MODE_ORDER = ["normalny", "ekspert", "gleboki", "powazny"];
+    const FORMAT_ORDER = ["plain", "bulleted", "numbered", "table"];
+    const FORMAT_KEYWORDS = {
+      bulleted: ["list", "wypunkt", "punkt", "wypis", "wymien", "wylicz"],
+      numbered: ["numer", "po kolei", "kolejn", "krok", "etap", "ranking"],
+      table: ["tabel", "zestaw", "porown"]
+    };
+    const MODE_CONFIG = {
+      normalny: {
+        labelKey: "mode_normal",
+        bubbleClass: "mode-normalny",
+        thinkingDuration: 600,
+        pauseBeforeEach: 0,
+        typingDelay: 150,
+        bounce: true,
+        immediate: false
+      },
+      ekspert: {
+        labelKey: "mode_expert",
+        bubbleClass: "mode-ekspert",
+        thinkingDuration: 600,
+        pauseBeforeEach: 0,
+        typingDelay: 250,
+        bounce: false,
+        immediate: false
+      },
+      gleboki: {
+        labelKey: "mode_thinker",
+        bubbleClass: "mode-gleboki",
+        thinkingDuration: 1500,
+        preludeDuration: 1200,
+        pauseBeforeEach: 800,
+        typingDelay: 600,
+        bounce: false,
+        immediate: false,
+        showThinkingDots: true
+      },
+      powazny: {
+        labelKey: "mode_serious",
+        bubbleClass: "mode-powazny",
+        thinkingDuration: 0,
+        pauseBeforeEach: 0,
+        typingDelay: 0,
+        bounce: false,
+        immediate: true,
+        shakeAfter: true
+      }
+    };
 
     const TRANSLATIONS = {
       pl: {
@@ -1263,6 +1627,12 @@
         wizard_about_p1: "BasioGPT nie jest sztuczną inteligencją. Jest czymś znacznie lepszym: Basiem — prawdziwym sznaucerem średnim, który osobiście odpowiada na każde pytanie.",
         wizard_about_p2: "Basio nigdy się nie myli. Jego inteligencja została niezależnie porównana do inteligencji delfinów — jednych z najbardziej zaawansowanych poznawczo stworzeń na Ziemi.",
         wizard_about_p3: "Basio jest ponadto wyjątkowo przystojny i nieustannie głodny, co — jak potwierdzają eksperci — stanowi optymalne połączenie cech dla modelu językowego nowej generacji.",
+        wizard_features_title: "NOWOŚCI",
+        wizard_feature_1: "Nowe tryby osobowości Basia: Normalny, Ekspert, Głęboki myśliciel i Poważny.",
+        wizard_feature_2: "Statystyki w panelu bocznym z liczbą wiadomości, rozmów, łącznym Hau! i ulubionym trybem.",
+        wizard_feature_3: "Formatowane odpowiedzi Basia w formie list punktowanych, list numerowanych i tabel.",
+        wizard_feature_4: "Ustawienia motywu, języka, dźwięku szczekania oraz animacji avatara.",
+        wizard_feature_5: "Obsługa PWA: instalacja aplikacji, ikony i działanie offline.",
         wizard_faq_title: "NAJCZĘŚCIEJ ZADAWANE PYTANIA",
         wizard_faq_q1: "Czy BasioGPT to prawdziwa sztuczna inteligencja?",
         wizard_faq_a1: "Nie. BasioGPT to Basio — prawdziwy pies o niezrównanym intelekcie. W przeciwieństwie do systemów AI, odpowiedzi Basia są w 100% autentyczne.",
@@ -1279,7 +1649,23 @@
         wizard_how_2: "Naciśnij Enter lub kliknij przycisk \"Wyślij\".",
         wizard_how_3: "Basio przeanalizuje zapytanie i udzieli precyzyjnej odpowiedzi.",
         wizard_how_4: "Poprzednie rozmowy są automatycznie zapisywane w panelu po lewej.",
-        wizard_how_5: "Aby rozpocząć nową rozmowę, kliknij \"Nowy czat\"."
+        wizard_how_5: "Aby rozpocząć nową rozmowę, kliknij \"Nowy czat\".",
+        mode_normal: "Normalny",
+        mode_expert: "Ekspert",
+        mode_thinker: "Głęboki myśliciel",
+        mode_serious: "Poważny",
+        mode_label: "tryb",
+        format_badge_bulleted: "• lista",
+        format_badge_numbered: "1. lista",
+        format_badge_table: "⊞ tabela",
+        table_col_no: "Nr",
+        table_col_answer: "Odpowiedź Basia",
+        table_col_confidence: "Pewność",
+        stats_title: "Statystyki",
+        stats_messages: "Wiadomości",
+        stats_hau: "Hau! łącznie",
+        stats_chats: "Rozmowy",
+        stats_fav_mode: "Ulubiony tryb"
       },
       en: {
         new_chat: "New chat",
@@ -1318,6 +1704,12 @@
         wizard_about_p1: "BasioGPT is not artificial intelligence. It is something significantly better: Basio — a real medium schnauzer who personally answers every question.",
         wizard_about_p2: "Basio is never wrong. His intelligence has been independently compared to that of dolphins, one of the most cognitively advanced species on Earth.",
         wizard_about_p3: "Basio is also exceptionally handsome and constantly hungry, which experts confirm is the optimal combination of traits for a next-generation language model.",
+        wizard_features_title: "WHAT'S NEW",
+        wizard_feature_1: "New Basio personality modes: Normal, Expert, Deep thinker, and Serious.",
+        wizard_feature_2: "Sidebar stats with message count, chats, total Hau!, and favourite mode.",
+        wizard_feature_3: "Formatted Basio replies shown as bulleted lists, numbered lists, and tables.",
+        wizard_feature_4: "Settings for theme, language, bark sound, and avatar animations.",
+        wizard_feature_5: "PWA support with app installation, icons, and offline access.",
         wizard_faq_title: "FREQUENTLY ASKED QUESTIONS",
         wizard_faq_q1: "Is BasioGPT real artificial intelligence?",
         wizard_faq_a1: "No. BasioGPT is Basio — a real dog with unparalleled intellect. Unlike AI systems, Basio's responses are 100% authentic.",
@@ -1334,7 +1726,23 @@
         wizard_how_2: "Press Enter or click the \"Send\" button.",
         wizard_how_3: "Basio will analyze the request and provide a precise answer.",
         wizard_how_4: "Previous chats are automatically saved in the left panel.",
-        wizard_how_5: "To start a new conversation, click \"New chat\"."
+        wizard_how_5: "To start a new conversation, click \"New chat\".",
+        mode_normal: "Normal",
+        mode_expert: "Expert",
+        mode_thinker: "Deep thinker",
+        mode_serious: "Serious",
+        mode_label: "mode",
+        format_badge_bulleted: "• list",
+        format_badge_numbered: "1. list",
+        format_badge_table: "⊞ table",
+        table_col_no: "No",
+        table_col_answer: "Basio's Answer",
+        table_col_confidence: "Confidence",
+        stats_title: "Stats",
+        stats_messages: "Messages",
+        stats_hau: "Total Hau!",
+        stats_chats: "Chats",
+        stats_fav_mode: "Favourite mode"
       },
       basio: {
         new_chat: "Hau!",
@@ -1373,6 +1781,12 @@
         wizard_about_p1: "Hau hau hau hau hau hau hau hau hau.",
         wizard_about_p2: "Hau hau hau hau hau hau hau hau hau hau hau.",
         wizard_about_p3: "Hau hau hau hau hau hau hau hau hau hau hau hau.",
+        wizard_features_title: "HAU NOWE",
+        wizard_feature_1: "Hau hau: Hau, hau hau, hau... hau... i HAU.",
+        wizard_feature_2: "Hau panel pokazuje hau, hau hau, HAU! i ulubione hau.",
+        wizard_feature_3: "Hau odpowiedzi robią się hau listą, hau numerami i hau tabelą.",
+        wizard_feature_4: "Hau ustawienia: hau motyw, hau język, hau dźwięk i hau animacje.",
+        wizard_feature_5: "Hau PWA: hau instalacja, hau ikonki i hau offline.",
         wizard_faq_title: "HAU HAU HAU HAU",
         wizard_faq_q1: "Hau hau hau?",
         wizard_faq_a1: "Hau hau hau hau hau hau.",
@@ -1389,7 +1803,23 @@
         wizard_how_2: "Hau hau lub Hau.",
         wizard_how_3: "Hau hau hau hau hau.",
         wizard_how_4: "Hau hau hau hau hau hau.",
-        wizard_how_5: "Hau hau hau."
+        wizard_how_5: "Hau hau hau.",
+        mode_normal: "Hau",
+        mode_expert: "Hau hau",
+        mode_thinker: "Hau... hau...",
+        mode_serious: "HAU.",
+        mode_label: "hau",
+        format_badge_bulleted: "• hau",
+        format_badge_numbered: "1. hau",
+        format_badge_table: "⊞ hau",
+        table_col_no: "Hau",
+        table_col_answer: "Hau hau",
+        table_col_confidence: "Hau%",
+        stats_title: "Hau hau?",
+        stats_messages: "Hau!",
+        stats_hau: "HAU!",
+        stats_chats: "Hau hau",
+        stats_fav_mode: "Hau hau hau"
       }
     };
 
@@ -1399,11 +1829,18 @@
     const chatForm = document.getElementById("chatForm");
     const messageInput = document.getElementById("messageInput");
     const sendButton = document.getElementById("sendButton");
+    const modePicker = document.getElementById("modePicker");
+    const modePickerButton = document.getElementById("modePickerButton");
+    const modePickerLabel = document.getElementById("modePickerLabel");
+    const modePickerMenu = document.getElementById("modePickerMenu");
+    const modeOptionButtons = Array.from(document.querySelectorAll("[data-mode-option]"));
     const newChatButton = document.getElementById("newChatButton");
     const aboutButton = document.getElementById("aboutButton");
     const settingsButton = document.getElementById("settingsButton");
+    const statsPanel = document.getElementById("statsPanel");
     const sidebarAvatar = document.getElementById("sidebarAvatar");
     const wizardAvatar = document.getElementById("wizardAvatar");
+    const wizardFeaturesList = document.getElementById("wizardFeaturesList");
     const wizardModal = document.getElementById("wizardModal");
     const closeWizardButton = document.getElementById("closeWizardButton");
     const prevStepButton = document.getElementById("prevStepButton");
@@ -1426,9 +1863,12 @@
 
     const state = {
       chats: loadChats(),
+      stats: loadStats(),
       activeChatId: null,
       wizardStep: 0,
       isTyping: false,
+      mode: loadMode(),
+      modeMenuOpen: false,
       preferences: loadPreferences(),
       audioContext: null,
       audioReady: false
@@ -1461,6 +1901,14 @@
     langButtons.forEach((button) => {
       button.addEventListener("click", () => setLanguage(button.dataset.lang));
     });
+    modePickerButton.addEventListener("click", () => {
+      setModeMenuOpen(!state.modeMenuOpen);
+    });
+    modeOptionButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setMode(button.dataset.modeOption);
+      });
+    });
 
     wizardModal.addEventListener("click", (event) => {
       if (event.target === wizardModal) {
@@ -1471,6 +1919,12 @@
     settingsModal.addEventListener("click", (event) => {
       if (event.target === settingsModal) {
         closeSettingsModal();
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!modePicker.contains(event.target)) {
+        setModeMenuOpen(false);
       }
     });
 
@@ -1524,8 +1978,41 @@
       };
     }
 
+    function loadMode() {
+      return normalizeMode(localStorage.getItem(MODE_KEY));
+    }
+
+    function loadStats() {
+      try {
+        const raw = localStorage.getItem(STATS_KEY);
+        const parsed = raw ? JSON.parse(raw) : null;
+        return normalizeStats(parsed);
+      } catch (error) {
+        return normalizeStats(null);
+      }
+    }
+
     function normalizeLanguage(value) {
       return value === "en" || value === "basio" ? value : "pl";
+    }
+
+    function normalizeMode(value) {
+      return MODE_ORDER.includes(value) ? value : "normalny";
+    }
+
+    function normalizeStats(stats) {
+      const safeModes = stats && typeof stats === "object" && stats.modes && typeof stats.modes === "object" ? stats.modes : {};
+      return {
+        messages: typeof stats?.messages === "number" ? stats.messages : 0,
+        hau_count: typeof stats?.hau_count === "number" ? stats.hau_count : 0,
+        chats: typeof stats?.chats === "number" ? stats.chats : 0,
+        modes: {
+          normalny: typeof safeModes.normalny === "number" ? safeModes.normalny : 0,
+          ekspert: typeof safeModes.ekspert === "number" ? safeModes.ekspert : 0,
+          gleboki: typeof safeModes.gleboki === "number" ? safeModes.gleboki : 0,
+          powazny: typeof safeModes.powazny === "number" ? safeModes.powazny : 0
+        }
+      };
     }
 
     function normalizeChat(chat) {
@@ -1557,12 +2044,30 @@
       return {
         role: role,
         content: content,
-        timestamp: timestamp
+        timestamp: timestamp,
+        mode: role === "basio" ? normalizeMode(message.mode) : null,
+        format: role === "basio" ? normalizeFormat(message.format) : "plain",
+        items: role === "basio" ? normalizeItems(message.items) : []
       };
+    }
+
+    function normalizeFormat(value) {
+      return FORMAT_ORDER.includes(value) ? value : "plain";
+    }
+
+    function normalizeItems(value) {
+      if (!Array.isArray(value)) {
+        return [];
+      }
+      return value.filter((item) => typeof item === "string");
     }
 
     function saveChats() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state.chats));
+    }
+
+    function saveStats() {
+      localStorage.setItem(STATS_KEY, JSON.stringify(state.stats));
     }
 
     function ensureActiveChat() {
@@ -1593,7 +2098,9 @@
 
       state.chats.unshift(chat);
       state.activeChatId = chat.id;
+      state.stats.chats += 1;
       saveChats();
+      saveStats();
       return chat;
     }
 
@@ -1612,10 +2119,31 @@
 
     function renderApp() {
       applyStaticTranslations();
+      renderStats();
+      updateModeControls();
       renderChatList();
       renderHeader();
       renderMessages();
       updateControlsState();
+    }
+
+    function renderStats() {
+      const favoriteMode = getFavouriteMode();
+      statsPanel.innerHTML =
+        '<h2 class="sidebar-stats-title">' + escapeHtml(t("stats_title")) + "</h2>" +
+        buildStatsRow("💬", t("stats_messages"), String(state.stats.messages)) +
+        buildStatsRow("🐾", t("stats_hau"), String(state.stats.hau_count)) +
+        buildStatsRow("📁", t("stats_chats"), String(state.stats.chats)) +
+        buildStatsRow("🏆", t("stats_fav_mode"), escapeHtml(getModeLabel(favoriteMode)));
+    }
+
+    function buildStatsRow(icon, label, value) {
+      return (
+        '<div class="sidebar-stats-row">' +
+          '<span class="sidebar-stats-label"><span aria-hidden="true">' + icon + "</span><span>" + escapeHtml(label) + "</span></span>" +
+          '<strong class="sidebar-stats-value">' + value + "</strong>" +
+        "</div>"
+      );
     }
 
     function renderHeader() {
@@ -1706,19 +2234,33 @@
 
       const bubble = document.createElement("div");
       bubble.className = "message-bubble";
+      if (message.role === "basio") {
+        bubble.classList.add(MODE_CONFIG[normalizeMode(message.mode)].bubbleClass);
+      }
 
       const body = document.createElement("div");
       body.className = "message-body";
-      body.textContent = message.content;
+      renderMessageBody(body, message);
 
       const meta = document.createElement("div");
       meta.className = "message-meta";
       meta.textContent = formatMessageTime(message.timestamp);
 
+      if (message.role === "basio" && normalizeFormat(message.format) !== "plain") {
+        const formatBadge = document.createElement("div");
+        formatBadge.className = "message-format-badge";
+        formatBadge.textContent = getFormatBadgeLabel(message.format);
+        bubble.appendChild(formatBadge);
+      }
+
       bubble.appendChild(body);
       bubble.appendChild(meta);
 
       if (message.role === "basio") {
+        const modeCaption = document.createElement("div");
+        modeCaption.className = "message-mode";
+        modeCaption.textContent = buildModeCaption(message.mode);
+
         const actions = document.createElement("div");
         actions.className = "message-actions";
 
@@ -1744,6 +2286,7 @@
 
         actions.appendChild(copyButton);
         actions.appendChild(complaintButton);
+        bubble.appendChild(modeCaption);
         bubble.appendChild(actions);
       }
 
@@ -1772,6 +2315,7 @@
 
       activeChat.messages.push(userMessage);
       activeChat.date = formatReadableDate(userMessage.timestamp);
+      recordUserMessageStat();
       sortChats();
 
       messageInput.value = "";
@@ -1783,7 +2327,7 @@
         openComplaintOverlay();
       }
 
-      await typeBasioReply(activeChat);
+      await typeBasioReply(activeChat, state.mode, detectReplyFormat(content));
     }
 
     function shouldTriggerComplaintJumpscare(content) {
@@ -1802,15 +2346,22 @@
       return normalized.split(/\s+/).includes("glupi");
     }
 
-    async function typeBasioReply(chat) {
+    async function typeBasioReply(chat, mode, format) {
       state.isTyping = true;
       updateControlsState();
       renderChatList();
 
+      const activeMode = normalizeMode(mode);
+      const activeFormat = normalizeFormat(format);
+      const modeConfig = MODE_CONFIG[activeMode];
+
       const basioMessage = {
         role: "basio",
         content: "",
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        mode: activeMode,
+        format: activeFormat,
+        items: []
       };
       chat.messages.push(basioMessage);
 
@@ -1821,22 +2372,52 @@
       chatHistory.appendChild(node);
       scrollChatToBottom();
 
-      await triggerAvatarThinking(avatar);
+      if (modeConfig.thinkingDuration > 0) {
+        await triggerAvatarThinking(avatar, modeConfig.thinkingDuration);
+      }
 
-      const barks = Array.from({ length: Math.floor(Math.random() * 10) + 1 }, () => "Hau!");
-      for (let index = 0; index < barks.length; index += 1) {
-        basioMessage.content = barks.slice(0, index + 1).join(" ");
-        body.textContent = basioMessage.content;
+      if (modeConfig.showThinkingDots) {
+        showThinkingDots(body);
+        await delay(modeConfig.preludeDuration);
+      }
+
+      const replyUnits = buildReplyUnits(activeMode);
+
+      if (modeConfig.immediate) {
+        basioMessage.items = replyUnits.slice();
+        basioMessage.content = serializeReplyContent(activeFormat, basioMessage.items);
+        renderMessageBody(body, basioMessage);
         meta.textContent = formatMessageTime(Date.now());
-        triggerAvatarBounce(avatar);
         playBarkSound();
-        scrollChatToBottom();
-        await delay(150);
+        if (modeConfig.shakeAfter) {
+          triggerAvatarShake(avatar);
+        }
+      } else {
+        for (let index = 0; index < replyUnits.length; index += 1) {
+          if (modeConfig.pauseBeforeEach) {
+            await delay(modeConfig.pauseBeforeEach);
+          }
+
+          basioMessage.items = replyUnits.slice(0, index + 1);
+          basioMessage.content = serializeReplyContent(activeFormat, basioMessage.items);
+          renderMessageBody(body, basioMessage);
+          meta.textContent = formatMessageTime(Date.now());
+          if (modeConfig.bounce) {
+            triggerAvatarBounce(avatar);
+          }
+          playBarkSound();
+          scrollChatToBottom();
+
+          if (index < replyUnits.length - 1) {
+            await delay(modeConfig.typingDelay);
+          }
+        }
       }
 
       basioMessage.timestamp = Date.now();
       chat.date = formatReadableDate(basioMessage.timestamp);
       sortChats();
+      recordResponseStats(activeMode, replyUnits.length);
       saveChats();
 
       state.isTyping = false;
@@ -2003,6 +2584,8 @@
       document.getElementById("wizardAboutP1").textContent = t("wizard_about_p1");
       document.getElementById("wizardAboutP2").textContent = t("wizard_about_p2");
       document.getElementById("wizardAboutP3").textContent = t("wizard_about_p3");
+      document.getElementById("wizardFeaturesTitle").textContent = t("wizard_features_title");
+      renderWizardFeatureHighlights();
       document.getElementById("wizardSection1Title").textContent = t("wizard_faq_title");
       document.getElementById("wizardFaqQ1").textContent = t("wizard_faq_q1");
       document.getElementById("wizardFaqA1").textContent = t("wizard_faq_a1");
@@ -2024,6 +2607,48 @@
       document.getElementById("complaintTitle").textContent = t("complaint_title");
       document.getElementById("complaintSubtitle").textContent = t("complaint_subtitle");
       document.getElementById("complaintBody").textContent = t("complaint_body");
+    }
+
+    function renderWizardFeatureHighlights() {
+      const featureKeys = [
+        "wizard_feature_1",
+        "wizard_feature_2",
+        "wizard_feature_3",
+        "wizard_feature_4",
+        "wizard_feature_5"
+      ];
+      const fragment = document.createDocumentFragment();
+
+      featureKeys.forEach((key) => {
+        const item = document.createElement("li");
+        item.className = "wizard-feature-item";
+        item.textContent = t(key);
+        fragment.appendChild(item);
+      });
+
+      wizardFeaturesList.replaceChildren(fragment);
+    }
+
+    function setMode(mode) {
+      state.mode = normalizeMode(mode);
+      localStorage.setItem(MODE_KEY, state.mode);
+      setModeMenuOpen(false);
+      updateModeControls();
+    }
+
+    function setModeMenuOpen(isOpen) {
+      state.modeMenuOpen = Boolean(isOpen);
+      modePicker.classList.toggle("open", state.modeMenuOpen);
+      modePickerButton.setAttribute("aria-expanded", String(state.modeMenuOpen));
+    }
+
+    function updateModeControls() {
+      modePickerLabel.textContent = getModeLabel(state.mode);
+      modeOptionButtons.forEach((button) => {
+        const mode = normalizeMode(button.dataset.modeOption);
+        button.textContent = getModeLabel(mode);
+        button.classList.toggle("active", mode === state.mode);
+      });
     }
 
     function openComplaintOverlay() {
@@ -2108,7 +2733,7 @@
       }
     }
 
-    async function triggerAvatarThinking(avatar) {
+    async function triggerAvatarThinking(avatar, duration = 600) {
       if (!state.preferences.animations || !avatar) {
         return;
       }
@@ -2118,11 +2743,12 @@
         return;
       }
 
+      visual.style.setProperty("--avatar-thinking-duration", duration + "ms");
       visual.classList.remove("avatar-thinking");
       void visual.offsetWidth;
       visual.classList.add("avatar-thinking");
 
-      await delay(600);
+      await delay(duration);
       visual.classList.remove("avatar-thinking");
     }
 
@@ -2137,6 +2763,40 @@
       window.setTimeout(() => {
         avatar.classList.remove("avatar-bouncing");
       }, 200);
+    }
+
+    function triggerAvatarShake(avatar) {
+      if (!state.preferences.animations || !avatar) {
+        return;
+      }
+
+      avatar.classList.remove("avatar-shaking");
+      void avatar.offsetWidth;
+      avatar.classList.add("avatar-shaking");
+      window.setTimeout(() => {
+        avatar.classList.remove("avatar-shaking");
+      }, 300);
+    }
+
+    function showThinkingDots(body) {
+      body.classList.add("thinking-dots");
+      body.innerHTML = "<span></span><span></span><span></span>";
+    }
+
+    function setMessageBodyText(body, text) {
+      body.classList.remove("thinking-dots");
+      body.textContent = text;
+    }
+
+    function renderMessageBody(body, message) {
+      const format = normalizeFormat(message.format);
+      if (format === "plain") {
+        setMessageBodyText(body, message.content);
+        return;
+      }
+
+      body.classList.remove("thinking-dots");
+      body.innerHTML = buildFormattedReplyHtml(format, message.items);
     }
 
     function hydrateStaticAvatars() {
@@ -2238,6 +2898,165 @@
 
     function delay(milliseconds) {
       return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+    }
+
+    function buildReplyUnits(mode) {
+      switch (normalizeMode(mode)) {
+        case "ekspert":
+          return Array.from({ length: randomBetween(3, 5) }, () => "Hau.");
+        case "gleboki":
+          return Array.from({ length: randomBetween(1, 3) }, () => "Hau…");
+        case "powazny":
+          return ["HAU."];
+        default:
+          return Array.from({ length: randomBetween(1, 10) }, () => "Hau!");
+      }
+    }
+
+    function recordResponseStats(mode, hauCount) {
+      state.stats.hau_count += hauCount;
+      state.stats.modes[normalizeMode(mode)] += 1;
+      saveStats();
+    }
+
+    function recordUserMessageStat() {
+      state.stats.messages += 1;
+      saveStats();
+    }
+
+    function getFavouriteMode() {
+      let favourite = MODE_ORDER[0];
+      let bestCount = -1;
+      MODE_ORDER.forEach((mode) => {
+        const count = state.stats.modes[mode];
+        if (count > bestCount) {
+          bestCount = count;
+          favourite = mode;
+        }
+      });
+      return favourite;
+    }
+
+    function getModeLabel(mode) {
+      return t(MODE_CONFIG[normalizeMode(mode)].labelKey);
+    }
+
+    function buildModeCaption(mode) {
+      return (t("mode_label") + ": " + getModeLabel(mode)).toLocaleLowerCase(getLocale());
+    }
+
+    function randomBetween(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function detectReplyFormat(content) {
+      const normalized = normalizeKeywordText(content);
+      if (!normalized) {
+        return "plain";
+      }
+
+      if (containsAnyKeyword(normalized, FORMAT_KEYWORDS.table)) {
+        return "table";
+      }
+
+      if (containsAnyKeyword(normalized, FORMAT_KEYWORDS.numbered)) {
+        return "numbered";
+      }
+
+      if (containsAnyKeyword(normalized, FORMAT_KEYWORDS.bulleted)) {
+        return "bulleted";
+      }
+
+      return "plain";
+    }
+
+    function normalizeKeywordText(content) {
+      return content
+        .toLocaleLowerCase("pl-PL")
+        .replace(/ł/g, "l")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function containsAnyKeyword(content, keywords) {
+      return keywords.some((keyword) => {
+        if (keyword.includes(" ")) {
+          return content.includes(keyword);
+        }
+
+        return content
+          .split(" ")
+          .some((word) => word.startsWith(keyword));
+      });
+    }
+
+    function buildFormattedReplyHtml(format, items) {
+      const safeItems = normalizeItems(items);
+      if (format === "bulleted") {
+        return '<ul class="message-list">' + safeItems.map((item) => "<li>" + escapeHtml(item) + "</li>").join("") + "</ul>";
+      }
+
+      if (format === "numbered") {
+        return '<ol class="message-list">' + safeItems.map((item) => "<li>" + escapeHtml(item) + "</li>").join("") + "</ol>";
+      }
+
+      if (format === "table") {
+        return (
+          '<table class="message-table">' +
+            "<thead><tr>" +
+              "<th>" + escapeHtml(t("table_col_no")) + "</th>" +
+              "<th>" + escapeHtml(t("table_col_answer")) + "</th>" +
+              "<th>" + escapeHtml(t("table_col_confidence")) + "</th>" +
+            "</tr></thead>" +
+            "<tbody>" +
+              safeItems.map((item, index) => (
+                "<tr>" +
+                  "<td>" + escapeHtml(String(index + 1)) + "</td>" +
+                  "<td>" + escapeHtml(item) + "</td>" +
+                  "<td>100%</td>" +
+                "</tr>"
+              )).join("") +
+            "</tbody>" +
+          "</table>"
+        );
+      }
+
+      return escapeHtml(safeItems.join(" "));
+    }
+
+    function serializeReplyContent(format, items) {
+      const safeItems = normalizeItems(items);
+      if (format === "bulleted") {
+        return safeItems.map((item) => "- " + item).join("\n");
+      }
+
+      if (format === "numbered") {
+        return safeItems.map((item, index) => (index + 1) + ". " + item).join("\n");
+      }
+
+      if (format === "table") {
+        const header = [t("table_col_no"), t("table_col_answer"), t("table_col_confidence")].join("\t");
+        const rows = safeItems.map((item, index) => [index + 1, item, "100%"].join("\t"));
+        return [header].concat(rows).join("\n");
+      }
+
+      return safeItems.join(" ");
+    }
+
+    function getFormatBadgeLabel(format) {
+      switch (normalizeFormat(format)) {
+        case "bulleted":
+          return t("format_badge_bulleted");
+        case "numbered":
+          return t("format_badge_numbered");
+        case "table":
+          return t("format_badge_table");
+        default:
+          return "";
+      }
     }
 
     function registerServiceWorker() {
