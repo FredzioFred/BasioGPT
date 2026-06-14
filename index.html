@@ -814,11 +814,12 @@
       position: absolute;
       top: clamp(14px, 2.5vw, 24px);
       right: clamp(14px, 2.5vw, 24px);
-      z-index: 2;
+      z-index: 3;
       padding: 8px 18px;
       border-color: rgba(255, 255, 255, 0.35);
       color: #ffffff;
       opacity: 0;
+      pointer-events: auto;
     }
 
     .complaint-close:hover {
@@ -839,6 +840,7 @@
       box-sizing: border-box;
       text-align: center;
       opacity: 0;
+      pointer-events: none;
     }
 
     .complaint-overlay.open .complaint-close {
