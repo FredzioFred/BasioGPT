@@ -831,7 +831,12 @@
       z-index: 2;
       width: min(100%, 760px);
       margin: 0 auto;
-      padding: clamp(20px, 4vw, 32px);
+      padding:
+        clamp(72px, 10vw, 112px)
+        clamp(20px, 4vw, 32px)
+        clamp(20px, 4vw, 32px);
+      padding-right: clamp(88px, 13vw, 148px);
+      box-sizing: border-box;
       text-align: center;
       opacity: 0;
     }
@@ -982,8 +987,23 @@
         min-height: 360px;
       }
 
+      .complaint-close {
+        top: 12px;
+        right: 12px;
+        padding: 8px 14px;
+      }
+
+      .complaint-content {
+        width: min(100%, 100%);
+        padding-top: 72px;
+        padding-right: 72px;
+        padding-left: 18px;
+        padding-bottom: 18px;
+      }
+
       .complaint-title {
         letter-spacing: 0.05em;
+        font-size: clamp(2rem, 8vw, 3.4rem);
       }
 
       .segmented-control,
