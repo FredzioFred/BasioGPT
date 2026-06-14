@@ -1,0 +1,2213 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BasioGPT</title>
+  <meta name="description" content="BasioGPT - webowa aplikacja czatu z Basiem, gotowa do instalacji jako PWA.">
+  <meta name="theme-color" content="#141418">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BasioGPT">
+  <meta name="application-name" content="BasioGPT">
+  <meta name="msapplication-TileColor" content="#141418">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="./favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #141418;
+      --sidebar: #1a1a20;
+      --card: #222229;
+      --user-card: #2a2a35;
+      --accent: #9b9bac;
+      --warm: #8a6a50;
+      --text: #f0f0f0;
+      --muted: #888899;
+      --border: rgba(155, 155, 172, 0.15);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --overlay: rgba(0, 0, 0, 0.8);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      font-family: "Inter", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    body[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f4f4f6;
+      --sidebar: #ebebef;
+      --card: #ffffff;
+      --user-card: #ffffff;
+      --accent: #6b6b80;
+      --text: #1a1a1f;
+      --muted: #666677;
+      --border: rgba(0, 0, 0, 0.1);
+      --overlay: rgba(0, 0, 0, 0.72);
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    button,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 16px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+    }
+
+    .sidebar-top {
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .brand-title,
+    .chat-header-title,
+    .empty-title {
+      margin: 0;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-title {
+      font-size: 1rem;
+    }
+
+    .brand-avatar,
+    .message-avatar,
+    .wizard-avatar {
+      border-radius: 50%;
+      overflow: hidden;
+      background: var(--card);
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+    }
+
+    .brand-avatar {
+      width: 36px;
+      height: 36px;
+    }
+
+    .message-avatar {
+      width: 32px;
+      height: 32px;
+    }
+
+    .wizard-avatar {
+      width: 120px;
+      height: 120px;
+      margin: -60px auto 12px;
+      transform: translateY(-50%);
+      border: 3px solid var(--accent);
+      font-size: 1.15rem;
+    }
+
+    .avatar-visual {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border-radius: inherit;
+    }
+
+    .brand-avatar img,
+    .message-avatar img,
+    .wizard-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avatar-fallback {
+      line-height: 1;
+    }
+
+    .message-avatar.avatar-bouncing {
+      animation: avatarBouncing 0.2s ease;
+    }
+
+    .message-avatar .avatar-visual.avatar-thinking {
+      animation: avatarThinking 0.6s ease-in-out;
+    }
+
+    .primary-button,
+    .secondary-button,
+    .composer-button,
+    .wizard-nav-button,
+    .complaint-close,
+    .settings-icon-button,
+    .theme-option,
+    .language-pill {
+      min-height: 40px;
+      border: 1px solid var(--accent);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--accent);
+      transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease, border-color 0.15s ease;
+    }
+
+    .primary-button,
+    .secondary-button,
+    .settings-icon-button {
+      width: 100%;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .primary-button:hover,
+    .secondary-button:hover,
+    .composer-button:hover,
+    .wizard-nav-button:hover,
+    .settings-icon-button:hover,
+    .theme-option:hover,
+    .language-pill:hover {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    .primary-button:disabled,
+    .secondary-button:disabled,
+    .composer-button:disabled,
+    .settings-icon-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .sidebar-list {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sidebar-empty {
+      padding: 6px 2px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 0.92rem;
+    }
+
+    .chat-item {
+      position: relative;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--card);
+      transition: border-color 0.15s ease;
+    }
+
+    .chat-item.active {
+      border-color: var(--accent);
+    }
+
+    .chat-item:hover .chat-delete {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .chat-select {
+      width: 100%;
+      padding: 12px 40px 12px 12px;
+      border: 0;
+      background: transparent;
+      text-align: left;
+      color: inherit;
+    }
+
+    .chat-item-title {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.94rem;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chat-item-date {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .chat-delete {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease, color 0.15s ease;
+    }
+
+    .chat-delete:hover {
+      color: var(--text);
+    }
+
+    .sidebar-bottom {
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .sidebar-tools {
+      display: grid;
+      gap: 10px;
+    }
+
+    .chat-panel {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 100vh;
+    }
+
+    .chat-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .chat-header-title {
+      font-size: 1.05rem;
+    }
+
+    .chat-history {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .empty-state {
+      max-width: 520px;
+      margin: auto;
+      padding: 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+
+    .empty-title {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    .empty-copy {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .message-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      max-width: 82%;
+    }
+
+    .message-row.user {
+      align-self: flex-end;
+      justify-content: flex-end;
+    }
+
+    .message-row.basio {
+      align-self: flex-start;
+    }
+
+    .message-bubble {
+      position: relative;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.65;
+    }
+
+    .message-row.user .message-bubble {
+      background: var(--user-card);
+      border-radius: 12px 12px 2px 12px;
+    }
+
+    .message-row.basio .message-bubble {
+      border-radius: 12px 12px 12px 2px;
+    }
+
+    .message-body {
+      color: var(--text);
+    }
+
+    .message-meta {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .message-actions {
+      display: flex;
+      gap: 6px;
+      justify-content: flex-end;
+      margin-top: 10px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+    }
+
+    .message-row.basio:hover .message-actions {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .message-action {
+      min-width: 24px;
+      height: 24px;
+      padding: 0 6px;
+      border: 0;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.3);
+      color: var(--muted);
+      transition: color 0.15s ease, background-color 0.15s ease;
+    }
+
+    .message-action:hover {
+      color: var(--text);
+      background: rgba(0, 0, 0, 0.42);
+    }
+
+    .composer {
+      padding: 18px 24px 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .composer-form {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .composer-input {
+      flex: 1;
+      min-height: 52px;
+      max-height: 180px;
+      resize: none;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--card);
+      color: var(--text);
+      outline: none;
+    }
+
+    .composer-input::placeholder {
+      color: var(--muted);
+    }
+
+    .composer-input:focus {
+      border-color: var(--accent);
+    }
+
+    .composer-button {
+      width: auto;
+      min-width: 110px;
+      padding: 0 16px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: var(--overlay);
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .wizard-card,
+    .settings-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      position: relative;
+    }
+
+    .wizard-card {
+      width: min(90vw, 480px);
+      padding: 80px 0 1.5rem;
+      overflow: visible;
+    }
+
+    .settings-card {
+      width: min(90vw, 420px);
+      padding: 1.5rem;
+    }
+
+    .wizard-close,
+    .settings-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 2;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.4);
+      color: var(--text);
+    }
+
+    .wizard-close:hover,
+    .settings-close:hover {
+      background: rgba(0, 0, 0, 0.56);
+    }
+
+    .wizard-head {
+      padding: 0 1.75rem;
+      text-align: center;
+    }
+
+    .wizard-title,
+    .settings-title {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      color: var(--text);
+    }
+
+    .wizard-divider {
+      width: 40px;
+      height: 2px;
+      margin: 8px auto 24px;
+      background: var(--accent);
+    }
+
+    .wizard-step {
+      display: none;
+      max-height: 280px;
+      overflow-y: auto;
+      padding: 0 1.75rem;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #c0c0cc;
+    }
+
+    .wizard-step.active {
+      display: block;
+    }
+
+    .wizard-section {
+      margin: 0 0 8px;
+      font-size: 13px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+    }
+
+    .wizard-step p {
+      margin: 0 0 14px;
+    }
+
+    .wizard-step p:last-child {
+      margin-bottom: 0;
+    }
+
+    .wizard-faq-item {
+      margin-bottom: 16px;
+    }
+
+    .wizard-faq-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .wizard-faq-question {
+      margin: 0 0 4px;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .wizard-faq-answer {
+      margin: 0;
+      color: #c0c0cc;
+    }
+
+    .wizard-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 12px;
+    }
+
+    .wizard-list-item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .wizard-list-number {
+      color: var(--accent);
+    }
+
+    .wizard-footer {
+      margin-top: 20px;
+      padding: 0 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .wizard-dots {
+      display: flex;
+      gap: 8px;
+      color: #444455;
+    }
+
+    .wizard-dot.active {
+      color: var(--accent);
+    }
+
+    .wizard-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .wizard-nav-button {
+      padding: 8px 20px;
+    }
+
+    .settings-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(155, 155, 172, 0.1);
+    }
+
+    .settings-close {
+      position: static;
+      flex: 0 0 auto;
+    }
+
+    .settings-body {
+      padding-top: 6px;
+    }
+
+    .settings-section-block {
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(155, 155, 172, 0.1);
+    }
+
+    .settings-section-block:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .settings-section-title {
+      margin: 0 0 12px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .settings-label {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .segmented-control,
+    .language-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .theme-option,
+    .language-pill {
+      min-height: 34px;
+      padding: 6px 12px;
+    }
+
+    .theme-option.active,
+    .language-pill.active {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 28px;
+      padding: 0;
+      border: 1px solid var(--accent);
+      border-radius: 999px;
+      background: transparent;
+    }
+
+    .toggle-switch::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent);
+      transition: transform 0.15s ease;
+    }
+
+    .toggle-switch[aria-checked="true"] {
+      background: rgba(155, 155, 172, 0.12);
+    }
+
+    .toggle-switch[aria-checked="true"]::after {
+      transform: translateX(22px);
+    }
+
+    .settings-legal {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .complaint-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: clamp(16px, 3vw, 32px);
+      background: rgba(0, 0, 0, 0.88);
+      animation: complaintFade 0.4s ease forwards;
+    }
+
+    .complaint-overlay.open {
+      display: flex;
+    }
+
+    .complaint-stage {
+      position: relative;
+      width: min(100%, 1120px);
+      height: min(100%, 720px);
+      max-height: 88vh;
+      min-height: min(420px, 100%);
+      overflow: hidden;
+      border-radius: 16px;
+    }
+
+    .complaint-overlay.open .complaint-image {
+      animation: complaintJumpscare 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .complaint-overlay.open .complaint-layer {
+      animation: complaintFlash 0.35s ease-out both;
+    }
+
+    .complaint-image,
+    .complaint-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .complaint-image {
+      object-fit: cover;
+      object-position: center 30%;
+      opacity: 0;
+      transform: scale(1);
+      transform-origin: center center;
+    }
+
+    .complaint-layer {
+      background: rgba(0, 0, 0, 0.35);
+      opacity: 0;
+    }
+
+    .complaint-close {
+      position: absolute;
+      top: clamp(14px, 2.5vw, 24px);
+      right: clamp(14px, 2.5vw, 24px);
+      z-index: 2;
+      padding: 8px 18px;
+      border-color: rgba(255, 255, 255, 0.35);
+      color: #ffffff;
+      opacity: 0;
+    }
+
+    .complaint-close:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+    }
+
+    .complaint-content {
+      position: relative;
+      z-index: 2;
+      width: min(100%, 760px);
+      margin: 0 auto;
+      padding: clamp(20px, 4vw, 32px);
+      text-align: center;
+      opacity: 0;
+    }
+
+    .complaint-overlay.open .complaint-close {
+      opacity: 1;
+    }
+
+    .complaint-overlay.open .complaint-content {
+      animation: complaintTitleIn 0.45s ease 0.16s both;
+    }
+
+    .complaint-title {
+      margin: 0;
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 900;
+      color: #ff2222;
+      letter-spacing: 0.08em;
+      text-shadow: 0 0 60px rgba(255, 0, 0, 0.9);
+    }
+
+    #complaintOverlay > .complaint-stage > .complaint-content > .complaint-subtitle {
+      margin: 1.5rem 0 0;
+      font-size: 1.1rem;
+      color: #a97979;
+    }
+
+    #complaintOverlay > .complaint-stage > .complaint-content > .complaint-copy {
+      margin: 0.75rem 0 0;
+      font-size: 0.95rem;
+      color: #a97979;
+    }
+
+    @keyframes complaintFade {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes complaintJumpscare {
+      0% {
+        opacity: 0;
+        transform: scale(1.24);
+      }
+      35% {
+        opacity: 1;
+        transform: scale(1.08);
+      }
+      55% {
+        transform: scale(1.11) translateX(-0.8%);
+      }
+      72% {
+        transform: scale(1.07) translateX(0.7%);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1.03);
+      }
+    }
+
+    @keyframes complaintFlash {
+      0% {
+        background: rgba(0, 0, 0, 0.95);
+      }
+      38% {
+        background: rgba(85, 0, 0, 0.14);
+      }
+      100% {
+        background: rgba(0, 0, 0, 0.35);
+      }
+    }
+
+    @keyframes complaintTitleIn {
+      from {
+        opacity: 0;
+        transform: translateY(-42px) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes avatarThinking {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes avatarBouncing {
+      0% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-5px);
+      }
+      100% {
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        min-height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .chat-header,
+      .chat-history,
+      .composer {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .composer-form,
+      .wizard-footer,
+      .settings-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .composer-button,
+      .wizard-nav-button,
+      .theme-option,
+      .language-pill {
+        width: 100%;
+      }
+
+      .message-row {
+        max-width: 100%;
+      }
+
+      .complaint-stage {
+        height: min(78vh, 560px);
+        min-height: 360px;
+      }
+
+      .complaint-title {
+        letter-spacing: 0.05em;
+      }
+
+      .segmented-control,
+      .language-pills {
+        justify-content: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="brand">
+          <div class="brand-avatar" id="sidebarAvatar"></div>
+          <h1 class="brand-title">BasioGPT</h1>
+        </div>
+        <button class="primary-button" id="newChatButton" type="button" data-i18n="new_chat">Nowy czat</button>
+      </div>
+
+      <div class="sidebar-list" id="chatList" aria-label="Lista rozmów"></div>
+
+      <div class="sidebar-bottom">
+        <div class="sidebar-tools">
+          <button class="settings-icon-button" id="settingsButton" type="button">
+            <span aria-hidden="true">⚙</span>
+            <span data-i18n="settings">Ustawienia</span>
+          </button>
+          <button class="secondary-button" id="aboutButton" type="button" data-i18n="about">O BasioGPT</button>
+        </div>
+      </div>
+    </aside>
+
+    <section class="chat-panel">
+      <header class="chat-header">
+        <h2 class="chat-header-title" id="chatHeaderTitle">BasioGPT</h2>
+      </header>
+
+      <section class="chat-history" id="chatHistory" aria-live="polite"></section>
+
+      <footer class="composer">
+        <form class="composer-form" id="chatForm">
+          <textarea
+            class="composer-input"
+            id="messageInput"
+            rows="1"
+            placeholder="Napisz do Basia..."
+            aria-label="Wiadomość do Basia"
+          ></textarea>
+          <button class="composer-button" id="sendButton" type="submit" data-i18n="send">Wyślij</button>
+        </form>
+      </footer>
+    </section>
+  </main>
+
+  <div class="modal-overlay" id="wizardModal" role="dialog" aria-modal="true" aria-labelledby="wizardTitle">
+    <div class="wizard-card">
+      <button class="wizard-close" id="closeWizardButton" type="button" aria-label="Zamknij">✕</button>
+
+      <div class="wizard-head">
+        <div class="wizard-avatar" id="wizardAvatar"></div>
+        <h3 class="wizard-title" id="wizardTitle">BasioGPT</h3>
+        <div class="wizard-divider" aria-hidden="true"></div>
+      </div>
+
+      <section class="wizard-step active" data-step="0">
+        <h4 class="wizard-section" id="wizardSection0Title">O BASIOGPT</h4>
+        <p id="wizardAboutP1">BasioGPT nie jest sztuczną inteligencją. Jest czymś znacznie lepszym: Basiem — prawdziwym sznaucerem średnim, który osobiście odpowiada na każde pytanie.</p>
+        <p id="wizardAboutP2">Basio nigdy się nie myli. Jego inteligencja została niezależnie porównana do inteligencji delfinów — jednych z najbardziej zaawansowanych poznawczo stworzeń na Ziemi.</p>
+        <p id="wizardAboutP3">Basio jest ponadto wyjątkowo przystojny i nieustannie głodny, co — jak potwierdzają eksperci — stanowi optymalne połączenie cech dla modelu językowego nowej generacji.</p>
+      </section>
+
+      <section class="wizard-step" data-step="1">
+        <h4 class="wizard-section" id="wizardSection1Title">NAJCZĘŚCIEJ ZADAWANE PYTANIA</h4>
+        <div class="wizard-faq-item">
+          <p class="wizard-faq-question" id="wizardFaqQ1">Czy BasioGPT to prawdziwa sztuczna inteligencja?</p>
+          <p class="wizard-faq-answer" id="wizardFaqA1">Nie. BasioGPT to Basio — prawdziwy pies o niezrównanym intelekcie. W przeciwieństwie do systemów AI, odpowiedzi Basia są w 100% autentyczne.</p>
+        </div>
+        <div class="wizard-faq-item">
+          <p class="wizard-faq-question" id="wizardFaqQ2">Dlaczego Basio mówi tylko "Hau"?</p>
+          <p class="wizard-faq-answer" id="wizardFaqA2">Basio komunikuje się w swoim ojczystym języku. Nasz zespół lingwistów potwierdził, że każda odpowiedź niesie głębokie znaczenie semantyczne niedostępne ludzkiemu uchu.</p>
+        </div>
+        <div class="wizard-faq-item">
+          <p class="wizard-faq-question" id="wizardFaqQ3">Czy Basio może się mylić?</p>
+          <p class="wizard-faq-answer" id="wizardFaqA3">Nie. Basio nigdy się nie mylił. Jego wieczny głód utrzymuje go w stanie czujności, a wyjątkowa uroda inspiruje zaufanie.</p>
+        </div>
+        <div class="wizard-faq-item">
+          <p class="wizard-faq-question" id="wizardFaqQ4">Ile parametrów ma BasioGPT?</p>
+          <p class="wizard-faq-answer" id="wizardFaqA4">BasioGPT działa na architekturze 4-łapowej z około 2 miliardami receptorów węchowych służących jako warstwy wejściowe.</p>
+        </div>
+        <div class="wizard-faq-item">
+          <p class="wizard-faq-question" id="wizardFaqQ5">Czy BasioGPT jest darmowy?</p>
+          <p class="wizard-faq-answer" id="wizardFaqA5">Tak. Basio oferuje swój czas bezpłatnie, głównie dlatego, że liczy na smakołyki.</p>
+        </div>
+      </section>
+
+      <section class="wizard-step" data-step="2">
+        <h4 class="wizard-section" id="wizardSection2Title">JAK KORZYSTAĆ</h4>
+        <ol class="wizard-list">
+          <li class="wizard-list-item"><span class="wizard-list-number">1.</span><span id="wizardHow1">Wpisz dowolne pytanie w polu tekstowym na dole ekranu.</span></li>
+          <li class="wizard-list-item"><span class="wizard-list-number">2.</span><span id="wizardHow2">Naciśnij Enter lub kliknij przycisk "Wyślij".</span></li>
+          <li class="wizard-list-item"><span class="wizard-list-number">3.</span><span id="wizardHow3">Basio przeanalizuje zapytanie i udzieli precyzyjnej odpowiedzi.</span></li>
+          <li class="wizard-list-item"><span class="wizard-list-number">4.</span><span id="wizardHow4">Poprzednie rozmowy są automatycznie zapisywane w panelu po lewej.</span></li>
+          <li class="wizard-list-item"><span class="wizard-list-number">5.</span><span id="wizardHow5">Aby rozpocząć nową rozmowę, kliknij "Nowy czat".</span></li>
+        </ol>
+      </section>
+
+      <div class="wizard-footer">
+        <div class="wizard-dots" aria-label="Wskaźnik kroków">
+          <span class="wizard-dot active">●</span>
+          <span class="wizard-dot">○</span>
+          <span class="wizard-dot">○</span>
+        </div>
+        <div class="wizard-actions">
+          <button class="wizard-nav-button" id="prevStepButton" type="button" data-i18n="back">Wstecz</button>
+          <button class="wizard-nav-button" id="nextStepButton" type="button" data-i18n="next">Dalej</button>
+          <button class="wizard-nav-button" id="finishWizardButton" type="button" data-i18n="get_started">Zaczynamy →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="settings-card">
+      <div class="settings-header">
+        <h3 class="settings-title" id="settingsTitle" data-i18n="settings">Ustawienia</h3>
+        <button class="settings-close" id="closeSettingsButton" type="button" aria-label="Zamknij">✕</button>
+      </div>
+
+      <div class="settings-body">
+        <section class="settings-section-block">
+          <h4 class="settings-section-title" id="appearanceSectionTitle">Wygląd</h4>
+          <div class="settings-row">
+            <p class="settings-label" data-i18n="theme">Motyw</p>
+            <div class="segmented-control">
+              <button class="theme-option" id="themeDarkButton" type="button" data-theme-option="dark" data-i18n="dark">Ciemny</button>
+              <button class="theme-option" id="themeLightButton" type="button" data-theme-option="light" data-i18n="light">Jasny</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-section-block">
+          <h4 class="settings-section-title" id="soundSectionTitle">Dźwięk i animacje</h4>
+          <div class="settings-row" style="margin-bottom: 14px;">
+            <p class="settings-label" data-i18n="sound">Dźwięk szczekania</p>
+            <button class="toggle-switch" id="soundToggle" type="button" role="switch" aria-checked="true"></button>
+          </div>
+          <div class="settings-row">
+            <p class="settings-label" data-i18n="animations">Animacje avatara</p>
+            <button class="toggle-switch" id="animationsToggle" type="button" role="switch" aria-checked="true"></button>
+          </div>
+        </section>
+
+        <section class="settings-section-block">
+          <h4 class="settings-section-title" id="languageSectionTitle">Język</h4>
+          <p class="settings-label" style="margin-bottom: 12px;" id="languageLabel">Język / Language / Język Basia</p>
+          <div class="language-pills">
+            <button class="language-pill" id="langPlButton" type="button" data-lang="pl">🇵🇱 Polski</button>
+            <button class="language-pill" id="langEnButton" type="button" data-lang="en">🇬🇧 English</button>
+            <button class="language-pill" id="langBasioButton" type="button" data-lang="basio">🐶 Basio</button>
+          </div>
+        </section>
+
+        <section class="settings-section-block">
+          <h4 class="settings-section-title" data-i18n="legal_title">Informacje prawne</h4>
+          <p class="settings-legal" id="legalBody">BasioGPT nie ponosi odpowiedzialności za jakiekolwiek decyzje podjęte na podstawie odpowiedzi Basia. Basio jest psem.</p>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div class="complaint-overlay" id="complaintOverlay" aria-hidden="true">
+    <div class="complaint-stage">
+      <img class="complaint-image" src="basio_angry.jpg" alt="Basio complaint overlay">
+      <div class="complaint-layer"></div>
+      <button class="complaint-close" id="closeComplaintButton" type="button" data-i18n="close">Zamknij</button>
+      <div class="complaint-content">
+        <h2 class="complaint-title" id="complaintTitle">BASIO NIGDY SIĘ NIE MYLI</h2>
+        <p class="complaint-subtitle" id="complaintSubtitle">Twoja reklamacja została rozpatrzona negatywnie.</p>
+        <p class="complaint-copy" id="complaintBody">Basio zapoznał się z Twoją sprawą i podtrzymuje swoją odpowiedź.</p>
+      </div>
+    </div>
+  </div>
+
+  <template id="brandAvatarTemplate">
+    <div class="brand-avatar" aria-hidden="true">
+      <div class="avatar-visual">
+        <img src="basio.jpg" alt="Basio">
+        <div class="avatar-fallback" hidden>🐶</div>
+      </div>
+    </div>
+  </template>
+
+  <template id="messageAvatarTemplate">
+    <div class="message-avatar" aria-hidden="true">
+      <div class="avatar-visual">
+        <img src="basio.jpg" alt="Basio">
+        <div class="avatar-fallback" hidden>🐶</div>
+      </div>
+    </div>
+  </template>
+
+  <template id="wizardAvatarTemplate">
+    <div class="wizard-avatar" aria-hidden="true">
+      <div class="avatar-visual">
+        <img src="basio.jpg" alt="Basio">
+        <div class="avatar-fallback" hidden>🐶</div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    const STORAGE_KEY = "basiogpt_chats";
+    const ONBOARDING_KEY = "basiogpt_onboarding_done";
+    const THEME_KEY = "basiogpt_theme";
+    const SOUND_KEY = "basiogpt_sound";
+    const ANIMATIONS_KEY = "basiogpt_animations";
+    const LANG_KEY = "basiogpt_lang";
+
+    const TRANSLATIONS = {
+      pl: {
+        new_chat: "Nowy czat",
+        settings: "Ustawienia",
+        about: "O BasioGPT",
+        send: "Wyślij",
+        placeholder: "Napisz do Basia...",
+        theme: "Motyw",
+        dark: "Ciemny",
+        light: "Jasny",
+        sound: "Dźwięk szczekania",
+        animations: "Animacje avatara",
+        close: "Zamknij",
+        get_started: "Zaczynamy →",
+        next: "Dalej",
+        back: "Wstecz",
+        complaint: "Złóż reklamację",
+        copy: "Kopiuj",
+        copied: "Skopiowano",
+        complaint_title: "BASIO NIGDY SIĘ NIE MYLI",
+        complaint_subtitle: "Twoja reklamacja została rozpatrzona negatywnie.",
+        complaint_body: "Basio zapoznał się z Twoją sprawą i podtrzymuje swoją odpowiedź.",
+        legal_title: "Informacje prawne",
+        legal_body: "BasioGPT nie ponosi odpowiedzialności za jakiekolwiek decyzje podjęte na podstawie odpowiedzi Basia. Basio jest psem.",
+        empty_title: "Rozpocznij rozmowę z Basiem",
+        empty_body: "Wpisz wiadomość w polu na dole. Basio przeanalizuje zapytanie i odpowie w swoim natywnym formacie komunikacyjnym.",
+        empty_chats: "Brak zapisanych rozmów. Kliknij „Nowy czat”, aby rozpocząć pierwszą rozmowę.",
+        appearance_section: "Wygląd",
+        sound_section: "Dźwięk i animacje",
+        language_section: "Język",
+        language_label: "Język / Language / Język Basia",
+        lang_pl: "🇵🇱 Polski",
+        lang_en: "🇬🇧 English",
+        lang_basio: "🐶 Basio",
+        wizard_about_title: "O BASIOGPT",
+        wizard_about_p1: "BasioGPT nie jest sztuczną inteligencją. Jest czymś znacznie lepszym: Basiem — prawdziwym sznaucerem średnim, który osobiście odpowiada na każde pytanie.",
+        wizard_about_p2: "Basio nigdy się nie myli. Jego inteligencja została niezależnie porównana do inteligencji delfinów — jednych z najbardziej zaawansowanych poznawczo stworzeń na Ziemi.",
+        wizard_about_p3: "Basio jest ponadto wyjątkowo przystojny i nieustannie głodny, co — jak potwierdzają eksperci — stanowi optymalne połączenie cech dla modelu językowego nowej generacji.",
+        wizard_faq_title: "NAJCZĘŚCIEJ ZADAWANE PYTANIA",
+        wizard_faq_q1: "Czy BasioGPT to prawdziwa sztuczna inteligencja?",
+        wizard_faq_a1: "Nie. BasioGPT to Basio — prawdziwy pies o niezrównanym intelekcie. W przeciwieństwie do systemów AI, odpowiedzi Basia są w 100% autentyczne.",
+        wizard_faq_q2: "Dlaczego Basio mówi tylko \"Hau\"?",
+        wizard_faq_a2: "Basio komunikuje się w swoim ojczystym języku. Nasz zespół lingwistów potwierdził, że każda odpowiedź niesie głębokie znaczenie semantyczne niedostępne ludzkiemu uchu.",
+        wizard_faq_q3: "Czy Basio może się mylić?",
+        wizard_faq_a3: "Nie. Basio nigdy się nie mylił. Jego wieczny głód utrzymuje go w stanie czujności, a wyjątkowa uroda inspiruje zaufanie.",
+        wizard_faq_q4: "Ile parametrów ma BasioGPT?",
+        wizard_faq_a4: "BasioGPT działa na architekturze 4-łapowej z około 2 miliardami receptorów węchowych służących jako warstwy wejściowe.",
+        wizard_faq_q5: "Czy BasioGPT jest darmowy?",
+        wizard_faq_a5: "Tak. Basio oferuje swój czas bezpłatnie, głównie dlatego, że liczy na smakołyki.",
+        wizard_how_title: "JAK KORZYSTAĆ",
+        wizard_how_1: "Wpisz dowolne pytanie w polu tekstowym na dole ekranu.",
+        wizard_how_2: "Naciśnij Enter lub kliknij przycisk \"Wyślij\".",
+        wizard_how_3: "Basio przeanalizuje zapytanie i udzieli precyzyjnej odpowiedzi.",
+        wizard_how_4: "Poprzednie rozmowy są automatycznie zapisywane w panelu po lewej.",
+        wizard_how_5: "Aby rozpocząć nową rozmowę, kliknij \"Nowy czat\"."
+      },
+      en: {
+        new_chat: "New chat",
+        settings: "Settings",
+        about: "About BasioGPT",
+        send: "Send",
+        placeholder: "Write to Basio...",
+        theme: "Theme",
+        dark: "Dark",
+        light: "Light",
+        sound: "Bark sound",
+        animations: "Avatar animations",
+        close: "Close",
+        get_started: "Let's go →",
+        next: "Next",
+        back: "Back",
+        complaint: "File complaint",
+        copy: "Copy",
+        copied: "Copied",
+        complaint_title: "BASIO IS NEVER WRONG",
+        complaint_subtitle: "Your complaint has been rejected.",
+        complaint_body: "Basio has reviewed your case and stands by his answer.",
+        legal_title: "Legal",
+        legal_body: "BasioGPT accepts no responsibility for any decisions made based on Basio's responses. Basio is a dog.",
+        empty_title: "Start a conversation with Basio",
+        empty_body: "Type a message below. Basio will analyze your request and answer in his native communication format.",
+        empty_chats: "No saved conversations yet. Click “New chat” to begin your first conversation.",
+        appearance_section: "Appearance",
+        sound_section: "Sound and animations",
+        language_section: "Language",
+        language_label: "Language / Język / Basio language",
+        lang_pl: "🇵🇱 Polski",
+        lang_en: "🇬🇧 English",
+        lang_basio: "🐶 Basio",
+        wizard_about_title: "ABOUT BASIOGPT",
+        wizard_about_p1: "BasioGPT is not artificial intelligence. It is something significantly better: Basio — a real medium schnauzer who personally answers every question.",
+        wizard_about_p2: "Basio is never wrong. His intelligence has been independently compared to that of dolphins, one of the most cognitively advanced species on Earth.",
+        wizard_about_p3: "Basio is also exceptionally handsome and constantly hungry, which experts confirm is the optimal combination of traits for a next-generation language model.",
+        wizard_faq_title: "FREQUENTLY ASKED QUESTIONS",
+        wizard_faq_q1: "Is BasioGPT real artificial intelligence?",
+        wizard_faq_a1: "No. BasioGPT is Basio — a real dog with unparalleled intellect. Unlike AI systems, Basio's responses are 100% authentic.",
+        wizard_faq_q2: "Why does Basio only say \"Hau\"?",
+        wizard_faq_a2: "Basio communicates in his native language. Our team of linguists has confirmed that each response carries deep semantic meaning imperceptible to the human ear.",
+        wizard_faq_q3: "Can Basio be wrong?",
+        wizard_faq_a3: "No. Basio has never been wrong. His constant hunger keeps him alert, and his exceptional looks inspire confidence.",
+        wizard_faq_q4: "How many parameters does BasioGPT have?",
+        wizard_faq_a4: "BasioGPT operates on a 4-paw architecture with approximately 2 billion nose receptors acting as input layers.",
+        wizard_faq_q5: "Is BasioGPT free to use?",
+        wizard_faq_a5: "Yes. Basio offers his time at no cost, mainly because he hopes for treats.",
+        wizard_how_title: "HOW TO USE IT",
+        wizard_how_1: "Enter any question in the text field at the bottom of the screen.",
+        wizard_how_2: "Press Enter or click the \"Send\" button.",
+        wizard_how_3: "Basio will analyze the request and provide a precise answer.",
+        wizard_how_4: "Previous chats are automatically saved in the left panel.",
+        wizard_how_5: "To start a new conversation, click \"New chat\"."
+      },
+      basio: {
+        new_chat: "Hau!",
+        settings: "Hau hau",
+        about: "Hau hau hau",
+        send: "Hau!",
+        placeholder: "Hau... hau hau?",
+        theme: "Hau hau?",
+        dark: "Hau",
+        light: "Hau hau",
+        sound: "Hau hau hau?",
+        animations: "Hau hau hau hau?",
+        close: "Hau.",
+        get_started: "Hau! →",
+        next: "Hau →",
+        back: "← Hau",
+        complaint: "HAU!",
+        copy: "Hau hau",
+        copied: "Hau ✓",
+        complaint_title: "HAU HAU HAU HAU HAU",
+        complaint_subtitle: "Hau hau hau hau.",
+        complaint_body: "Hau hau hau hau hau hau.",
+        legal_title: "Hau hau hau",
+        legal_body: "Hau hau hau hau hau hau hau hau.",
+        empty_title: "Hau hau hau",
+        empty_body: "Hau hau hau hau hau hau hau hau.",
+        empty_chats: "Hau hau hau. Hau hau hau hau.",
+        appearance_section: "Hau hau",
+        sound_section: "Hau hau hau",
+        language_section: "Hau",
+        language_label: "Język / Language / Język Basia",
+        lang_pl: "🇵🇱 Polski",
+        lang_en: "🇬🇧 English",
+        lang_basio: "🐶 Basio",
+        wizard_about_title: "HAU HAU HAU",
+        wizard_about_p1: "Hau hau hau hau hau hau hau hau hau.",
+        wizard_about_p2: "Hau hau hau hau hau hau hau hau hau hau hau.",
+        wizard_about_p3: "Hau hau hau hau hau hau hau hau hau hau hau hau.",
+        wizard_faq_title: "HAU HAU HAU HAU",
+        wizard_faq_q1: "Hau hau hau?",
+        wizard_faq_a1: "Hau hau hau hau hau hau.",
+        wizard_faq_q2: "Hau hau \"Hau\"?",
+        wizard_faq_a2: "Hau hau hau hau hau hau hau.",
+        wizard_faq_q3: "Hau hau hau?",
+        wizard_faq_a3: "Hau. Hau hau hau hau hau.",
+        wizard_faq_q4: "Hau hau hau hau?",
+        wizard_faq_a4: "Hau hau hau hau hau hau hau hau.",
+        wizard_faq_q5: "Hau hau hau?",
+        wizard_faq_a5: "Hau. Hau hau hau hau.",
+        wizard_how_title: "HAU HAU",
+        wizard_how_1: "Hau hau hau hau hau.",
+        wizard_how_2: "Hau hau lub Hau.",
+        wizard_how_3: "Hau hau hau hau hau.",
+        wizard_how_4: "Hau hau hau hau hau hau.",
+        wizard_how_5: "Hau hau hau."
+      }
+    };
+
+    const chatList = document.getElementById("chatList");
+    const chatHistory = document.getElementById("chatHistory");
+    const chatHeaderTitle = document.getElementById("chatHeaderTitle");
+    const chatForm = document.getElementById("chatForm");
+    const messageInput = document.getElementById("messageInput");
+    const sendButton = document.getElementById("sendButton");
+    const newChatButton = document.getElementById("newChatButton");
+    const aboutButton = document.getElementById("aboutButton");
+    const settingsButton = document.getElementById("settingsButton");
+    const sidebarAvatar = document.getElementById("sidebarAvatar");
+    const wizardAvatar = document.getElementById("wizardAvatar");
+    const wizardModal = document.getElementById("wizardModal");
+    const closeWizardButton = document.getElementById("closeWizardButton");
+    const prevStepButton = document.getElementById("prevStepButton");
+    const nextStepButton = document.getElementById("nextStepButton");
+    const finishWizardButton = document.getElementById("finishWizardButton");
+    const wizardSteps = Array.from(document.querySelectorAll(".wizard-step"));
+    const wizardDots = Array.from(document.querySelectorAll(".wizard-dot"));
+    const settingsModal = document.getElementById("settingsModal");
+    const closeSettingsButton = document.getElementById("closeSettingsButton");
+    const themeDarkButton = document.getElementById("themeDarkButton");
+    const themeLightButton = document.getElementById("themeLightButton");
+    const soundToggle = document.getElementById("soundToggle");
+    const animationsToggle = document.getElementById("animationsToggle");
+    const langButtons = Array.from(document.querySelectorAll(".language-pill"));
+    const complaintOverlay = document.getElementById("complaintOverlay");
+    const closeComplaintButton = document.getElementById("closeComplaintButton");
+    const brandAvatarTemplate = document.getElementById("brandAvatarTemplate");
+    const messageAvatarTemplate = document.getElementById("messageAvatarTemplate");
+    const wizardAvatarTemplate = document.getElementById("wizardAvatarTemplate");
+
+    const state = {
+      chats: loadChats(),
+      activeChatId: null,
+      wizardStep: 0,
+      isTyping: false,
+      preferences: loadPreferences(),
+      audioContext: null,
+      audioReady: false
+    };
+
+    applyThemePreference();
+    applyLanguageMeta();
+    applyStaticTranslations();
+    hydrateStaticAvatars();
+    ensureActiveChat();
+    renderApp();
+    updateSettingsControls();
+    maybeShowWizard();
+    bindAudioBootstrap();
+    registerServiceWorker();
+
+    newChatButton.addEventListener("click", handleNewChat);
+    aboutButton.addEventListener("click", () => openWizard(0));
+    settingsButton.addEventListener("click", openSettingsModal);
+    closeWizardButton.addEventListener("click", closeWizard);
+    closeSettingsButton.addEventListener("click", closeSettingsModal);
+    prevStepButton.addEventListener("click", () => setWizardStep(state.wizardStep - 1));
+    nextStepButton.addEventListener("click", () => setWizardStep(state.wizardStep + 1));
+    finishWizardButton.addEventListener("click", finishWizard);
+    closeComplaintButton.addEventListener("click", closeComplaintOverlay);
+    themeDarkButton.addEventListener("click", () => setTheme("dark"));
+    themeLightButton.addEventListener("click", () => setTheme("light"));
+    soundToggle.addEventListener("click", () => setSoundEnabled(!state.preferences.sound));
+    animationsToggle.addEventListener("click", () => setAnimationsEnabled(!state.preferences.animations));
+    langButtons.forEach((button) => {
+      button.addEventListener("click", () => setLanguage(button.dataset.lang));
+    });
+
+    wizardModal.addEventListener("click", (event) => {
+      if (event.target === wizardModal) {
+        closeWizard();
+      }
+    });
+
+    settingsModal.addEventListener("click", (event) => {
+      if (event.target === settingsModal) {
+        closeSettingsModal();
+      }
+    });
+
+    chatForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await handleSend();
+    });
+
+    messageInput.addEventListener("keydown", async (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        await handleSend();
+      }
+    });
+
+    messageInput.addEventListener("input", autoResizeInput);
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && wizardModal.classList.contains("open")) {
+        closeWizard();
+      }
+
+      if (event.key === "Escape" && settingsModal.classList.contains("open")) {
+        closeSettingsModal();
+      }
+
+      if (event.key === "Escape" && complaintOverlay.classList.contains("open")) {
+        closeComplaintOverlay();
+      }
+    });
+
+    function loadChats() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(parsed)) {
+          return [];
+        }
+        return parsed.map(normalizeChat).filter(Boolean);
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function loadPreferences() {
+      return {
+        theme: localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark",
+        sound: localStorage.getItem(SOUND_KEY) !== "false",
+        animations: localStorage.getItem(ANIMATIONS_KEY) !== "false",
+        lang: normalizeLanguage(localStorage.getItem(LANG_KEY))
+      };
+    }
+
+    function normalizeLanguage(value) {
+      return value === "en" || value === "basio" ? value : "pl";
+    }
+
+    function normalizeChat(chat) {
+      if (!chat || typeof chat !== "object") {
+        return null;
+      }
+
+      const messages = Array.isArray(chat.messages) ? chat.messages.map(normalizeMessage).filter(Boolean) : [];
+      return {
+        id: typeof chat.id === "string" ? chat.id : generateId(),
+        date: typeof chat.date === "string" ? chat.date : formatReadableDate(getChatSortTimestamp({ id: generateId(), messages: messages })),
+        messages: messages
+      };
+    }
+
+    function normalizeMessage(message) {
+      if (!message || typeof message !== "object") {
+        return null;
+      }
+
+      const role = message.role === "bot" ? "basio" : message.role;
+      const content = typeof message.content === "string" ? message.content : message.text;
+      const timestamp = typeof message.timestamp === "number" ? message.timestamp : Date.now();
+
+      if ((role !== "user" && role !== "basio") || typeof content !== "string") {
+        return null;
+      }
+
+      return {
+        role: role,
+        content: content,
+        timestamp: timestamp
+      };
+    }
+
+    function saveChats() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.chats));
+    }
+
+    function ensureActiveChat() {
+      if (state.activeChatId && getActiveChat()) {
+        return getActiveChat();
+      }
+
+      if (state.chats.length) {
+        sortChats();
+        state.activeChatId = state.chats[0].id;
+        return state.chats[0];
+      }
+
+      return null;
+    }
+
+    function getActiveChat() {
+      return state.chats.find((chat) => chat.id === state.activeChatId) || null;
+    }
+
+    function createChat() {
+      const timestamp = Date.now();
+      const chat = {
+        id: String(timestamp),
+        date: formatReadableDate(timestamp),
+        messages: []
+      };
+
+      state.chats.unshift(chat);
+      state.activeChatId = chat.id;
+      saveChats();
+      return chat;
+    }
+
+    function handleNewChat() {
+      if (state.isTyping) {
+        return;
+      }
+
+      primeAudioContext();
+      createChat();
+      messageInput.value = "";
+      autoResizeInput();
+      renderApp();
+      messageInput.focus();
+    }
+
+    function renderApp() {
+      applyStaticTranslations();
+      renderChatList();
+      renderHeader();
+      renderMessages();
+      updateControlsState();
+    }
+
+    function renderHeader() {
+      const activeChat = getActiveChat();
+      if (!activeChat || !activeChat.messages.length) {
+        chatHeaderTitle.textContent = "BasioGPT";
+        return;
+      }
+      chatHeaderTitle.textContent = getChatTitle(activeChat);
+    }
+
+    function renderChatList() {
+      chatList.innerHTML = "";
+
+      if (!state.chats.length) {
+        const empty = document.createElement("div");
+        empty.className = "sidebar-empty";
+        empty.textContent = t("empty_chats");
+        chatList.appendChild(empty);
+        return;
+      }
+
+      sortChats();
+
+      state.chats.forEach((chat) => {
+        const item = document.createElement("article");
+        item.className = "chat-item";
+        if (chat.id === state.activeChatId) {
+          item.classList.add("active");
+        }
+
+        const select = document.createElement("button");
+        select.type = "button";
+        select.className = "chat-select";
+        select.innerHTML =
+          '<span class="chat-item-title">' + escapeHtml(getChatTitle(chat)) + "</span>" +
+          '<span class="chat-item-date">' + escapeHtml(formatReadableDate(getChatSortTimestamp(chat))) + "</span>";
+        select.addEventListener("click", () => {
+          if (state.isTyping) {
+            return;
+          }
+          state.activeChatId = chat.id;
+          renderApp();
+        });
+
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "chat-delete";
+        deleteButton.setAttribute("aria-label", t("close"));
+        deleteButton.title = t("close");
+        deleteButton.textContent = "🗑";
+        deleteButton.addEventListener("click", () => deleteChat(chat.id));
+
+        item.appendChild(select);
+        item.appendChild(deleteButton);
+        chatList.appendChild(item);
+      });
+    }
+
+    function renderMessages() {
+      const activeChat = ensureActiveChat();
+      chatHistory.innerHTML = "";
+
+      if (!activeChat || !activeChat.messages.length) {
+        const empty = document.createElement("section");
+        empty.className = "empty-state";
+        empty.innerHTML =
+          '<h3 class="empty-title">' + escapeHtml(t("empty_title")) + "</h3>" +
+          '<p class="empty-copy">' + escapeHtml(t("empty_body")) + "</p>";
+        chatHistory.appendChild(empty);
+        return;
+      }
+
+      activeChat.messages.forEach((message) => {
+        chatHistory.appendChild(createMessageNode(message));
+      });
+
+      scrollChatToBottom();
+    }
+
+    function createMessageNode(message) {
+      const row = document.createElement("article");
+      row.className = "message-row " + message.role;
+
+      if (message.role === "basio") {
+        row.appendChild(buildAvatar(messageAvatarTemplate));
+      }
+
+      const bubble = document.createElement("div");
+      bubble.className = "message-bubble";
+
+      const body = document.createElement("div");
+      body.className = "message-body";
+      body.textContent = message.content;
+
+      const meta = document.createElement("div");
+      meta.className = "message-meta";
+      meta.textContent = formatMessageTime(message.timestamp);
+
+      bubble.appendChild(body);
+      bubble.appendChild(meta);
+
+      if (message.role === "basio") {
+        const actions = document.createElement("div");
+        actions.className = "message-actions";
+
+        const copyButton = document.createElement("button");
+        copyButton.type = "button";
+        copyButton.className = "message-action";
+        copyButton.title = t("copy");
+        copyButton.setAttribute("aria-label", t("copy"));
+        copyButton.textContent = "📋";
+        copyButton.addEventListener("click", async () => {
+          await copyMessage(message.content, copyButton);
+        });
+
+        const complaintButton = document.createElement("button");
+        complaintButton.type = "button";
+        complaintButton.className = "message-action";
+        complaintButton.title = t("complaint");
+        complaintButton.setAttribute("aria-label", t("complaint"));
+        complaintButton.textContent = "!";
+        complaintButton.addEventListener("click", () => {
+          openComplaintOverlay();
+        });
+
+        actions.appendChild(copyButton);
+        actions.appendChild(complaintButton);
+        bubble.appendChild(actions);
+      }
+
+      row.appendChild(bubble);
+      return row;
+    }
+
+    async function handleSend() {
+      const content = messageInput.value.trim();
+      if (!content || state.isTyping) {
+        return;
+      }
+
+      primeAudioContext();
+
+      let activeChat = getActiveChat();
+      if (!activeChat) {
+        activeChat = createChat();
+      }
+
+      const userMessage = {
+        role: "user",
+        content: content,
+        timestamp: Date.now()
+      };
+
+      activeChat.messages.push(userMessage);
+      activeChat.date = formatReadableDate(userMessage.timestamp);
+      sortChats();
+
+      messageInput.value = "";
+      autoResizeInput();
+      renderApp();
+
+      await typeBasioReply(activeChat);
+    }
+
+    async function typeBasioReply(chat) {
+      state.isTyping = true;
+      updateControlsState();
+      renderChatList();
+
+      const basioMessage = {
+        role: "basio",
+        content: "",
+        timestamp: Date.now()
+      };
+      chat.messages.push(basioMessage);
+
+      const node = createMessageNode(basioMessage);
+      const body = node.querySelector(".message-body");
+      const meta = node.querySelector(".message-meta");
+      const avatar = node.querySelector(".message-avatar");
+      chatHistory.appendChild(node);
+      scrollChatToBottom();
+
+      await triggerAvatarThinking(avatar);
+
+      const barks = Array.from({ length: Math.floor(Math.random() * 10) + 1 }, () => "Hau!");
+      for (let index = 0; index < barks.length; index += 1) {
+        basioMessage.content = barks.slice(0, index + 1).join(" ");
+        body.textContent = basioMessage.content;
+        meta.textContent = formatMessageTime(Date.now());
+        triggerAvatarBounce(avatar);
+        playBarkSound();
+        scrollChatToBottom();
+        await delay(150);
+      }
+
+      basioMessage.timestamp = Date.now();
+      chat.date = formatReadableDate(basioMessage.timestamp);
+      sortChats();
+      saveChats();
+
+      state.isTyping = false;
+      renderApp();
+      messageInput.focus();
+    }
+
+    async function copyMessage(content, button) {
+      const previousText = button.textContent;
+      const previousTitle = button.title;
+      try {
+        await navigator.clipboard.writeText(content);
+      } catch (error) {
+        const helper = document.createElement("textarea");
+        helper.value = content;
+        document.body.appendChild(helper);
+        helper.select();
+        document.execCommand("copy");
+        helper.remove();
+      }
+
+      button.textContent = "✓";
+      button.title = t("copied");
+      button.setAttribute("aria-label", t("copied"));
+
+      window.setTimeout(() => {
+        button.textContent = previousText;
+        button.title = previousTitle;
+        button.setAttribute("aria-label", t("copy"));
+      }, 1500);
+    }
+
+    function deleteChat(chatId) {
+      if (state.isTyping) {
+        return;
+      }
+
+      state.chats = state.chats.filter((chat) => chat.id !== chatId);
+      if (state.activeChatId === chatId) {
+        state.activeChatId = state.chats.length ? state.chats[0].id : null;
+      }
+      saveChats();
+      renderApp();
+    }
+
+    function updateControlsState() {
+      const disabled = state.isTyping;
+      messageInput.disabled = disabled;
+      sendButton.disabled = disabled;
+      newChatButton.disabled = disabled;
+      aboutButton.disabled = disabled;
+      settingsButton.disabled = disabled;
+    }
+
+    function maybeShowWizard() {
+      if (!localStorage.getItem(ONBOARDING_KEY)) {
+        openWizard(0);
+      }
+    }
+
+    function openWizard(step) {
+      setWizardStep(step);
+      wizardModal.classList.add("open");
+    }
+
+    function closeWizard() {
+      wizardModal.classList.remove("open");
+    }
+
+    function finishWizard() {
+      localStorage.setItem(ONBOARDING_KEY, "true");
+      closeWizard();
+    }
+
+    function openSettingsModal() {
+      settingsModal.classList.add("open");
+      updateSettingsControls();
+    }
+
+    function closeSettingsModal() {
+      settingsModal.classList.remove("open");
+    }
+
+    function setWizardStep(step) {
+      state.wizardStep = Math.max(0, Math.min(step, wizardSteps.length - 1));
+      wizardSteps.forEach((wizardStep, index) => {
+        wizardStep.classList.toggle("active", index === state.wizardStep);
+      });
+      wizardDots.forEach((dot, index) => {
+        dot.classList.toggle("active", index === state.wizardStep);
+        dot.textContent = index === state.wizardStep ? "●" : "○";
+      });
+      prevStepButton.style.visibility = state.wizardStep === 0 ? "hidden" : "visible";
+      nextStepButton.style.display = state.wizardStep === wizardSteps.length - 1 ? "none" : "inline-flex";
+      finishWizardButton.style.display = state.wizardStep === wizardSteps.length - 1 ? "inline-flex" : "none";
+    }
+
+    function setTheme(theme) {
+      state.preferences.theme = theme === "light" ? "light" : "dark";
+      localStorage.setItem(THEME_KEY, state.preferences.theme);
+      applyThemePreference();
+      updateSettingsControls();
+    }
+
+    function setSoundEnabled(enabled) {
+      state.preferences.sound = Boolean(enabled);
+      localStorage.setItem(SOUND_KEY, String(state.preferences.sound));
+      updateSettingsControls();
+    }
+
+    function setAnimationsEnabled(enabled) {
+      state.preferences.animations = Boolean(enabled);
+      localStorage.setItem(ANIMATIONS_KEY, String(state.preferences.animations));
+      updateSettingsControls();
+    }
+
+    function setLanguage(language) {
+      state.preferences.lang = normalizeLanguage(language);
+      localStorage.setItem(LANG_KEY, state.preferences.lang);
+      applyLanguageMeta();
+      applyStaticTranslations();
+      updateSettingsControls();
+      renderApp();
+    }
+
+    function applyThemePreference() {
+      document.body.dataset.theme = state.preferences.theme;
+    }
+
+    function applyLanguageMeta() {
+      document.documentElement.lang = state.preferences.lang === "en" ? "en" : "pl";
+    }
+
+    function updateSettingsControls() {
+      themeDarkButton.classList.toggle("active", state.preferences.theme === "dark");
+      themeLightButton.classList.toggle("active", state.preferences.theme === "light");
+      soundToggle.setAttribute("aria-checked", String(state.preferences.sound));
+      animationsToggle.setAttribute("aria-checked", String(state.preferences.animations));
+      langButtons.forEach((button) => {
+        button.classList.toggle("active", button.dataset.lang === state.preferences.lang);
+      });
+    }
+
+    function applyStaticTranslations() {
+      document.querySelectorAll("[data-i18n]").forEach((element) => {
+        element.textContent = t(element.dataset.i18n);
+      });
+
+      messageInput.placeholder = t("placeholder");
+      messageInput.setAttribute("aria-label", t("placeholder"));
+      closeWizardButton.setAttribute("aria-label", t("close"));
+      closeSettingsButton.setAttribute("aria-label", t("close"));
+
+      document.getElementById("appearanceSectionTitle").textContent = t("appearance_section");
+      document.getElementById("soundSectionTitle").textContent = t("sound_section");
+      document.getElementById("languageSectionTitle").textContent = t("language_section");
+      document.getElementById("languageLabel").textContent = t("language_label");
+      document.getElementById("langPlButton").textContent = t("lang_pl");
+      document.getElementById("langEnButton").textContent = t("lang_en");
+      document.getElementById("langBasioButton").textContent = t("lang_basio");
+      document.getElementById("legalBody").textContent = t("legal_body");
+
+      document.getElementById("wizardSection0Title").textContent = t("wizard_about_title");
+      document.getElementById("wizardAboutP1").textContent = t("wizard_about_p1");
+      document.getElementById("wizardAboutP2").textContent = t("wizard_about_p2");
+      document.getElementById("wizardAboutP3").textContent = t("wizard_about_p3");
+      document.getElementById("wizardSection1Title").textContent = t("wizard_faq_title");
+      document.getElementById("wizardFaqQ1").textContent = t("wizard_faq_q1");
+      document.getElementById("wizardFaqA1").textContent = t("wizard_faq_a1");
+      document.getElementById("wizardFaqQ2").textContent = t("wizard_faq_q2");
+      document.getElementById("wizardFaqA2").textContent = t("wizard_faq_a2");
+      document.getElementById("wizardFaqQ3").textContent = t("wizard_faq_q3");
+      document.getElementById("wizardFaqA3").textContent = t("wizard_faq_a3");
+      document.getElementById("wizardFaqQ4").textContent = t("wizard_faq_q4");
+      document.getElementById("wizardFaqA4").textContent = t("wizard_faq_a4");
+      document.getElementById("wizardFaqQ5").textContent = t("wizard_faq_q5");
+      document.getElementById("wizardFaqA5").textContent = t("wizard_faq_a5");
+      document.getElementById("wizardSection2Title").textContent = t("wizard_how_title");
+      document.getElementById("wizardHow1").textContent = t("wizard_how_1");
+      document.getElementById("wizardHow2").textContent = t("wizard_how_2");
+      document.getElementById("wizardHow3").textContent = t("wizard_how_3");
+      document.getElementById("wizardHow4").textContent = t("wizard_how_4");
+      document.getElementById("wizardHow5").textContent = t("wizard_how_5");
+
+      document.getElementById("complaintTitle").textContent = t("complaint_title");
+      document.getElementById("complaintSubtitle").textContent = t("complaint_subtitle");
+      document.getElementById("complaintBody").textContent = t("complaint_body");
+    }
+
+    function openComplaintOverlay() {
+      complaintOverlay.classList.add("open");
+      complaintOverlay.setAttribute("aria-hidden", "false");
+    }
+
+    function closeComplaintOverlay() {
+      complaintOverlay.classList.remove("open");
+      complaintOverlay.setAttribute("aria-hidden", "true");
+    }
+
+    function bindAudioBootstrap() {
+      const unlock = () => {
+        primeAudioContext();
+      };
+
+      document.addEventListener("pointerdown", unlock, { passive: true });
+      document.addEventListener("keydown", unlock);
+    }
+
+    function primeAudioContext() {
+      if (state.audioReady) {
+        if (state.audioContext && state.audioContext.state === "suspended") {
+          state.audioContext.resume().catch(() => {});
+        }
+        return;
+      }
+
+      state.audioReady = true;
+      const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextConstructor) {
+        return;
+      }
+
+      try {
+        state.audioContext = new AudioContextConstructor();
+        if (state.audioContext.state === "suspended") {
+          state.audioContext.resume().catch(() => {});
+        }
+      } catch (error) {
+        state.audioContext = null;
+      }
+    }
+
+    function playBarkSound() {
+      if (!state.preferences.sound || !state.audioContext) {
+        return;
+      }
+
+      const context = state.audioContext;
+      if (context.state === "suspended") {
+        context.resume().catch(() => {});
+      }
+
+      try {
+        const now = context.currentTime;
+        const oscillator = context.createOscillator();
+        const filter = context.createBiquadFilter();
+        const gain = context.createGain();
+
+        oscillator.type = "sawtooth";
+        oscillator.frequency.setValueAtTime(280, now);
+        oscillator.frequency.exponentialRampToValueAtTime(80, now + 0.08);
+
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(900, now);
+        filter.frequency.exponentialRampToValueAtTime(240, now + 0.12);
+
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.linearRampToValueAtTime(0.3, now + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+
+        oscillator.connect(filter);
+        filter.connect(gain);
+        gain.connect(context.destination);
+
+        oscillator.start(now);
+        oscillator.stop(now + 0.12);
+      } catch (error) {
+        // Fail silently when Web Audio is unavailable or blocked.
+      }
+    }
+
+    async function triggerAvatarThinking(avatar) {
+      if (!state.preferences.animations || !avatar) {
+        return;
+      }
+
+      const visual = avatar.querySelector(".avatar-visual");
+      if (!visual) {
+        return;
+      }
+
+      visual.classList.remove("avatar-thinking");
+      void visual.offsetWidth;
+      visual.classList.add("avatar-thinking");
+
+      await delay(600);
+      visual.classList.remove("avatar-thinking");
+    }
+
+    function triggerAvatarBounce(avatar) {
+      if (!state.preferences.animations || !avatar) {
+        return;
+      }
+
+      avatar.classList.remove("avatar-bouncing");
+      void avatar.offsetWidth;
+      avatar.classList.add("avatar-bouncing");
+      window.setTimeout(() => {
+        avatar.classList.remove("avatar-bouncing");
+      }, 200);
+    }
+
+    function hydrateStaticAvatars() {
+      replaceAvatar(sidebarAvatar, brandAvatarTemplate);
+      replaceAvatar(wizardAvatar, wizardAvatarTemplate);
+    }
+
+    function replaceAvatar(target, template) {
+      const avatar = buildAvatar(template);
+      target.replaceWith(avatar);
+      avatar.id = target.id;
+    }
+
+    function buildAvatar(template) {
+      const fragment = template.content.cloneNode(true);
+      const root = fragment.firstElementChild;
+      const image = fragment.querySelector("img");
+      const fallback = fragment.querySelector(".avatar-fallback");
+
+      image.addEventListener("error", () => {
+        image.hidden = true;
+        fallback.hidden = false;
+      }, { once: true });
+
+      image.addEventListener("load", () => {
+        fallback.hidden = true;
+      }, { once: true });
+
+      return root;
+    }
+
+    function getChatTitle(chat) {
+      const firstUserMessage = chat.messages.find((message) => message.role === "user");
+      if (!firstUserMessage) {
+        return "BasioGPT";
+      }
+      const normalized = firstUserMessage.content.replace(/\s+/g, " ").trim();
+      return normalized.length > 30 ? normalized.slice(0, 30) + "..." : normalized;
+    }
+
+    function getChatSortTimestamp(chat) {
+      if (chat.messages.length) {
+        return chat.messages[chat.messages.length - 1].timestamp;
+      }
+      return Number(String(chat.id).split("-")[0]) || 0;
+    }
+
+    function sortChats() {
+      state.chats.sort((left, right) => getChatSortTimestamp(right) - getChatSortTimestamp(left));
+    }
+
+    function getLocale() {
+      return state.preferences.lang === "en" ? "en-US" : "pl-PL";
+    }
+
+    function formatReadableDate(timestamp) {
+      return new Intl.DateTimeFormat(getLocale(), {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      }).format(new Date(timestamp));
+    }
+
+    function formatMessageTime(timestamp) {
+      return new Intl.DateTimeFormat(getLocale(), {
+        hour: "2-digit",
+        minute: "2-digit"
+      }).format(new Date(timestamp));
+    }
+
+    function autoResizeInput() {
+      messageInput.style.height = "auto";
+      messageInput.style.height = Math.min(messageInput.scrollHeight, 180) + "px";
+    }
+
+    function scrollChatToBottom() {
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    function generateId() {
+      return Date.now() + "-" + Math.random().toString(16).slice(2, 8);
+    }
+
+    function t(key) {
+      const language = TRANSLATIONS[state.preferences.lang] || TRANSLATIONS.pl;
+      return language[key] || TRANSLATIONS.pl[key] || key;
+    }
+
+    function escapeHtml(value) {
+      return value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function delay(milliseconds) {
+      return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+    }
+
+    function registerServiceWorker() {
+      if (!("serviceWorker" in navigator)) {
+        return;
+      }
+
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(() => {
+          // Fail silently when service workers are unavailable.
+        });
+      });
+    }
+  </script>
+</body>
+</html>
